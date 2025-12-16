@@ -61,6 +61,9 @@ class text_filter extends \core_filters\text_filter {
             return "";
         }
 
+        // Add a unique id to the filter props.
+        $filterprops['uniqid'] = uniqid();
+
         // We use this to see if its a web service calling this.
         // in which case we return the alternate content.
         $climode = defined('CLI_SCRIPT') && CLI_SCRIPT;
@@ -99,6 +102,7 @@ class text_filter extends \core_filters\text_filter {
             $template = $DB->get_record('filter_genericotwo_templates', ['templatekey' => $filterprops['type']]);
             if($template) {
                 $mustachestring = $template->content;
+                $jsstring = $template->jscontent;
             } else {
                 return '';
             }
@@ -116,6 +120,6 @@ class text_filter extends \core_filters\text_filter {
 
         //Ready to go so ..
         $renderer = $PAGE->get_renderer(constants::M_COMPONENT);
-        return $renderer->do_render($mustachestring, $filterprops);
+        return $renderer->do_render($mustachestring, $jsstring, $filterprops);
     }
 }

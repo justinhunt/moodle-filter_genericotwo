@@ -1,0 +1,21 @@
+<script>
+    (function() {
+        if (typeof window.filter_genericotwo === 'undefined') {
+            window.filter_genericotwo = {
+                queue: [],
+                ready: false,
+                run: function(cb) {
+                    if (this.ready) {
+                        cb();
+                    } else {
+                        this.queue.push(cb);
+                    }
+                }
+            };
+        }
+
+        window.filter_genericotwo.run(function() {
+            {{{jscontent}}}
+        });
+    })();
+</script>
