@@ -11,7 +11,8 @@ $string['template'] = 'Template';
 $string['template_version'] = 'Version';
 $string['template_templatekey'] = 'Template Key';
 $string['template_customcss'] = 'Custom CSS';
-$string['template_variables'] = 'Variables';
+$string['template_importcss'] = 'Import CSS URL';
+$string['template_variabledefaults'] = 'Variable Defaults';
 $string['template_jscontent'] = 'JS Content';
 $string['template_previewcontext'] = 'Preview context';
 $string['template_name'] = 'Name';
@@ -23,6 +24,14 @@ $string['deleteconfirm'] = 'Are you sure you want to delete this template?';
 $string['templatedeleted'] = 'Template deleted successfully';
 $string['templateadded'] = 'Template added successfully';
 $string['templateupdated'] = 'Template updated successfully';
-
+$string['template_allowedcontexts'] = 'Allowed Contexts';
+$string['template_allowedcontextids'] = 'Allowed Context IDs';
+$string['template_dataset'] = 'Dataset ID';
+$string['template_datasetvars'] = 'Dataset Variables';
+$string['template_templateend'] = 'Template End';
+$string['template_instructions'] = 'Instructions';
+$string['template_cssstyles'] = 'CSS Styles';
+$string['template_datasetsettings'] = 'Dataset';
+$string['template_security'] = 'Security';
 
 $string['required'] = 'This field is required.';

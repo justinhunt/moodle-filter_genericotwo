@@ -47,8 +47,16 @@ if ($data = $form->get_data()) {
     $record->content = $data->content;
     $record->jscontent = $data->jscontent;
     $record->customcss = $data->customcss;
-    $record->variables = $data->variables;
+    $record->importcss = $data->importcss;
+    $record->variabledefaults = $data->variabledefaults;
     $record->previewcontext = $data->previewcontext;
+    $record->allowedcontexts = $data->allowedcontexts;
+    $record->allowedcontextids = $data->allowedcontextids;
+    $record->dataset = $data->dataset;
+    $record->datasetvars = $data->datasetvars;
+    $record->templateend = $data->templateend;
+    $record->instructions = $data->instructions['text'];
+    $record->instructionsformat = $data->instructions['format'];
     $record->timemodified = time();
     if (empty($data->id)) {
         $record->timecreated = time();
@@ -71,6 +79,10 @@ echo html_writer::empty_tag('br');
 if ($action === 'add' || $action === 'edit') {
     if ($action === 'edit' && empty($data)) {
         if ($tmpl = $DB->get_record('filter_genericotwo_templates', ['id' => $id], '*', IGNORE_MISSING)) {
+            $tmpl->instructions = [
+                'text' => $tmpl->instructions,
+                'format' => $tmpl->instructionsformat ?? FORMAT_MOODLE
+            ];
             $form->set_data($tmpl);
         } else {
             redirect(new moodle_url('/filter/genericotwo/templates.php'));

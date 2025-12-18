@@ -31,22 +31,53 @@ class template_form extends moodleform {
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
 
-        $mform->addElement('text', 'customcss', get_string('template_customcss', constants::M_COMPONENT), ['size' => 64]);
-        $mform->setType('customcss', PARAM_TEXT);
-
-
-        $mform->addElement('textarea', 'variables', get_string('template_variables', constants::M_COMPONENT));
-        $mform->setType('variables', PARAM_RAW);
+        $mform->addElement('editor', 'instructions', get_string('template_instructions', constants::M_COMPONENT));
+        $mform->setType('instructions', PARAM_RAW);
 
         $mform->addElement('textarea', 'content', get_string('template_content', constants::M_COMPONENT));
         $mform->setType('content', PARAM_RAW);
         $mform->addRule('content', null, 'required', null, 'client');
 
+        $mform->addElement('textarea', 'templateend', get_string('template_templateend', constants::M_COMPONENT));
+        $mform->setType('templateend', PARAM_RAW);
+
         $mform->addElement('textarea', 'jscontent', get_string('template_jscontent', constants::M_COMPONENT));
         $mform->setType('jscontent', PARAM_RAW);
 
+        $mform->addElement('textarea', 'variabledefaults', get_string('template_variabledefaults', constants::M_COMPONENT));
+        $mform->setType('variabledefaults', PARAM_RAW);
+
         $mform->addElement('textarea', 'previewcontext', get_string('template_previewcontext', constants::M_COMPONENT));
         $mform->setType('previewcontext', PARAM_RAW);
+
+
+        // CSS Styles.
+        $mform->addElement('header', 'hdr_css', get_string('template_cssstyles', constants::M_COMPONENT));
+
+        $mform->addElement('text', 'importcss', get_string('template_importcss', constants::M_COMPONENT), ['size' => 64]);
+        $mform->setType('importcss', PARAM_TEXT);
+
+        $mform->addElement('text', 'customcss', get_string('template_customcss', constants::M_COMPONENT), ['size' => 64]);
+        $mform->setType('customcss', PARAM_TEXT);
+
+        // Dataset.
+        $mform->addElement('header', 'hdr_dataset', get_string('template_datasetsettings', constants::M_COMPONENT));
+
+        $mform->addElement('text', 'dataset', get_string('template_dataset', constants::M_COMPONENT), ['size' => 64]);
+        $mform->setType('dataset', PARAM_TEXT);
+
+        $mform->addElement('textarea', 'datasetvars', get_string('template_datasetvars', constants::M_COMPONENT));
+        $mform->setType('datasetvars', PARAM_RAW);
+
+        // Security.
+        $mform->addElement('header', 'hdr_security', get_string('template_security', constants::M_COMPONENT));
+
+        $mform->addElement('text', 'allowedcontexts', get_string('template_allowedcontexts', constants::M_COMPONENT), ['size' => 64]);
+        $mform->setType('allowedcontexts', PARAM_TEXT);
+
+        $mform->addElement('text', 'allowedcontextids', get_string('template_allowedcontextids', constants::M_COMPONENT), ['size' => 64]);
+        $mform->setType('allowedcontextids', PARAM_TEXT);
+
 
         $this->add_action_buttons();
     }
