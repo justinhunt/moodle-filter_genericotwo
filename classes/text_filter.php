@@ -168,17 +168,21 @@ class text_filter extends \core_filters\text_filter {
         
        
        // Dataset
-        if(!empty($template->dataset) && !empty($template->datasetvars)) {
+        if(!empty($template->dataset)) {
              //replace any variables from filterprops in datasetvars 
-             $datasetvars = $template->datasetvars;
-            foreach ($filterprops as $name => $value) {
-                $datasetvars = str_replace('{{G2:' . $name . '}}', $value, $datasetvars);
-            }
+             if(!empty  ($template->datasetvars)) {
+                 $datasetvars = $template->datasetvars;
+                 foreach ($filterprops as $name => $value) {
+                     $datasetvars = str_replace('{{G2:' . $name . '}}', $value, $datasetvars);
+                 }
+             }
             // Fetch dataset for this template.
             $dataset = $this->fetch_dataset($template, $datasetvars);
             if (!empty($dataset)) {
-                $filterprops = array_merge($filterprops, $dataset);
-            } 
+                $filterprops['DATASET'] = $dataset;
+            } else {
+                $filterprops['DATASET'] = [];
+            }   
         } 
 
         //Ready to go so ..
@@ -320,7 +324,7 @@ class text_filter extends \core_filters\text_filter {
     private function fetch_dataset($template, $datasetvars) {
         global $DB;
         $vars = [];
-        if ($datasetvars) {
+        if ($datasetvars && !empty($datasetvars)) {
             $vars = explode(',', $datasetvars);
         }
         // Turn numeric vars into numbers (not strings).
@@ -336,7 +340,7 @@ class text_filter extends \core_filters\text_filter {
         try {
             $alldata = $DB->get_records_sql($template->dataset, $queryvars);
             if ($alldata) {
-                return $alldata;
+                return array_values($alldata);
             } else {
                 return [];
             }
