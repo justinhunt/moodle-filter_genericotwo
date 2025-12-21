@@ -5,15 +5,15 @@ define(['jquery'], function ($) {
                 return;
             }
 
-            var cdnUrl = 'https://cdn.jsdelivr.net/npm/ace-builds@1.5.0/src-min-noconflict/';
+            var cdnUrl = 'https://cdn.jsdelivr.net/npm/ace-builds@1.43.5/src-min-noconflict/';
             if (params.acecdn) {
                 switch (params.acecdn) {
                     case 'unpkg':
-                        cdnUrl = 'https://unpkg.com/ace-builds@1.5.0/src-min-noconflict/';
+                        cdnUrl = 'https://unpkg.com/ace-builds@1.43.5/src-min-noconflict/';
                         break;
                     case 'jsdelivr':
                     default:
-                        cdnUrl = 'https://cdn.jsdelivr.net/npm/ace-builds@1.5.0/src-min-noconflict/';
+                        cdnUrl = 'https://cdn.jsdelivr.net/npm/ace-builds@1.43.5/src-min-noconflict/';
                         break;
                 }
             }
