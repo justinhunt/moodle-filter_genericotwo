@@ -123,21 +123,21 @@ class text_filter extends \core_filters\text_filter {
         }
 
         //Add context from /  URLPARAMS / COURSE/ USER / Defaults
-        
+        $haystack = $mustachestring . ' ' . $datasetvars . ' ' . $jsstring;
         // Fetch URL params for this template
-        $urlprops = $this->fetch_url_params($mustachestring . ' ' . $datasetvars . ' ' . $jsstring);
+        $urlprops = $this->fetch_url_params($haystack);
         if (!empty($urlprops)) {
             $filterprops = array_merge($filterprops, $urlprops);
         }
 
         // Fetch course props for this template
-        $courseprops = $this->fetch_course_props($mustachestring . ' ' . $datasetvars . ' ' . $jsstring);
+        $courseprops = $this->fetch_course_props($haystack);
         if (!empty($courseprops)) {
             $filterprops = array_merge($filterprops, $courseprops);
         }
 
          //Fetch user props for this template
-        $userprops = $this->fetch_user_props($mustachestring . ' ' . $datasetvars . ' ' . $jsstring);
+        $userprops = $this->fetch_user_props($haystack);
         if (!empty($userprops)) {
             $filterprops = array_merge($filterprops, $userprops);
         }
@@ -170,10 +170,14 @@ class text_filter extends \core_filters\text_filter {
        // Dataset
         if(!empty($template->dataset)) {
              //replace any variables from filterprops in datasetvars 
-             if(!empty  ($template->datasetvars)) {
+             // A dataset vars might look like: {{COURSE:id}},{{USER:firstname}},'hello',{{weather}}
+             // in filterprops we might have: COURSE:id, USER:firstname, weather
+             // so we surround our filterprops field name with {{ and }} and do an str_replace
+             // We DON'T put any variables in the dataset body, because we want to put them all through moodles cleaning process
+             if(!empty($template->datasetvars)) {
                  $datasetvars = $template->datasetvars;
                  foreach ($filterprops as $name => $value) {
-                     $datasetvars = str_replace('{{G2:' . $name . '}}', $value, $datasetvars);
+                     $datasetvars = str_replace('{{' . $name . '}}', $value, $datasetvars);
                  }
              }
             // Fetch dataset for this template.

@@ -33,5 +33,9 @@ $string['template_instructions'] = 'Instructions';
 $string['template_cssstyles'] = 'CSS Styles';
 $string['template_datasetsettings'] = 'Dataset';
 $string['template_security'] = 'Security';
+$string['enableace'] = 'Enable Ace Editor';
+$string['enableace_desc'] = 'Enable syntax highlighting options using Ace Editor.';
+$string['acecdn'] = 'Ace Editor CDN';
+$string['acecdn_desc'] = 'Choose the CDN to load Ace Editor from. Staticfile is recommended for users in China.';
 
 $string['required'] = 'This field is required.';
