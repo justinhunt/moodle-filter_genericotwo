@@ -1,6 +1,15 @@
 define(['jquery'], function ($) {
     return {
-        init: function () {
+        init: function (cssurls) {
+
+            // Inject CSS if provided
+            if (cssurls && cssurls.length > 0) {
+                cssurls.forEach(function (url) {
+                    this.injectcss(url);
+                }.bind(this));
+            }
+
+            // Run any queued JS scripts
             if (typeof window.filter_genericotwo !== 'undefined') {
                 window.filter_genericotwo.ready = true;
                 // Run all queued functions.
@@ -12,9 +21,21 @@ define(['jquery'], function ($) {
                         console.error('GenericoTwo script error:', e);
                     }
                 }
-                // Clear the queue to free memory, though subsequent calls go straight to run().
+                // Clear the queue, subsequent calls go straight to run().
                 window.filter_genericotwo.queue = [];
             }
+        },
+
+        injectcss: function (csslink) {
+            // Check if already exists to avoid duplicates
+            if (document.querySelector('link[href="' + csslink + '"]')) {
+                return;
+            }
+            var link = document.createElement("link");
+            link.href = csslink;
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            document.getElementsByTagName("head")[0].appendChild(link);
         }
     };
 });

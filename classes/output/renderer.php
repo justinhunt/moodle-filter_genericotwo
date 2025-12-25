@@ -36,8 +36,19 @@ class renderer extends \plugin_renderer_base implements renderable {
             $jsloaderdata = ['jscontent' => $finishedjs];
             $loader_tpl = $mustache->loadTemplate('filter_genericotwo/jsloader');
             $finishedcontents .= $loader_tpl->render($jsloaderdata);
-            $this->page->requires->js_call_amd('filter_genericotwo/loader', 'init');
         }
+
+        // Prepare CSS URLs for late loading if needed
+        $cssurls = [];
+        if (!empty($templatedata['CSSLINK'])) {
+            $cssurls[] = $templatedata['CSSLINK'];
+        }
+        if (!empty($templatedata['CSSCUSTOM'])) {
+            $cssurls[] = $templatedata['CSSCUSTOM'];
+        }
+
+        // Always call init, passing CSS if any
+        $this->page->requires->js_call_amd('filter_genericotwo/loader', 'init', [$cssurls]);
 
         return $finishedcontents;
     }

@@ -99,17 +99,86 @@ class text_filter extends \core_filters\text_filter {
         }
 
         // Determine which template we are using.
+        // Determine which template we are using.
         if (isset($filterprops['type']) && !empty($filterprops['type'])) {
-            $template = $DB->get_record('filter_genericotwo_templates', ['templatekey' => $filterprops['type']]);
-            if($template) {
-                $mustachestring = $template->content;
-                $jsstring = $template->jscontent;
-                $datasetvars = $template->datasetvars;
+            $type = $filterprops['type'];
+            $isendtag = false;
+            // Check for _end suffix.
+            if (substr($type, -4) === '_end') {
+                $type = substr($type, 0, -4);
+                $isendtag = true;
+            }
+
+            $template = $DB->get_record('filter_genericotwo_templates', ['templatekey' => $type]);
+            if ($template) {
+                if ($isendtag) {
+                    $mustachestring = $template->templateend;
+                    $jsstring = '';
+                    $datasetvars = '';
+                    // Disable dataset for end tags.
+                    $template->dataset = '';
+                } else {
+                    $mustachestring = $template->content;
+                    $jsstring = $template->jscontent;
+                    $datasetvars = $template->datasetvars;
+                }
             } else {
                 return '';
             }
         } else {
             return '';
+        }
+
+        // CSS Handling
+        // Detect protocol for external links
+        $scheme = parse_url($CFG->wwwroot, PHP_URL_SCHEME) . ':';
+
+        // 1. Import CSS (Require CSS)
+        $importcss = $template->importcss;
+        if (!empty($importcss)) {
+            if (strpos($importcss, '//') === 0) {
+                $importcss = $scheme . $importcss;
+            } else if (strpos($importcss, '/') === 0) {
+                $importcss = $CFG->wwwroot . $importcss;
+            }
+        }
+
+        // 2. Custom CSS
+        $customcssurl = false;
+        if (!empty($template->customcss)) {
+            $url = '/filter/genericotwo/css.php';
+            // Use time modified or current time to bust cache if possible, but we don't have it handy in the filterprops or template object easily without more queries if not selected.
+            // But we fetched the whole template record, so we might have timemodified? 
+            // The template object comes from $DB->get_record, so check if it has timemodified.
+            // Standard Generico tables usually have it. Let's assume yes or default to 0.
+            $rev = isset($template->timemodified) ? $template->timemodified : 0;
+            $params = [
+                'id' => $template->id,
+                'rev' => $rev, // Cache busting
+            ];
+            $customcssurl = new \moodle_url($url, $params);
+        }
+
+        // Initialize fallback props
+        $filterprops['CSSLINK'] = false;
+        $filterprops['CSSCUSTOM'] = false;
+
+        // Try to add to head
+        if (!$PAGE->headerprinted && !$PAGE->requires->is_head_done()) {
+            if ($importcss) {
+                $PAGE->requires->css(new \moodle_url($importcss));
+            }
+            if ($customcssurl) {
+                $PAGE->requires->css($customcssurl);
+            }
+        } else {
+            // Late injection fallback
+            if ($importcss) {
+                $filterprops['CSSLINK'] = $importcss;
+            }
+            if ($customcssurl) {
+                $filterprops['CSSCUSTOM'] = $customcssurl->out(false);
+            }
         }
 
         // Check context is allowed.
