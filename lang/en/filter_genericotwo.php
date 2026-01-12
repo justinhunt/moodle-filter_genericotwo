@@ -5,6 +5,8 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'Generico Two filter';
 $string['filtername'] = 'Generico Two filter';
 $string['privacy:metadata'] = 'The Generico Two filter does not store any personal data.';
+$string['genericotwo:managetemplates'] = 'Manage templates';
+$string['managetemplates'] = 'Manage templates';
 $string['templates'] = 'Templates';
 $string['templatesinstructions'] = 'Add or edit a template here to make it available for use by the filter. A template is a mustache template with some fields, and javascript and CSS.';
 $string['template'] = 'Template';
