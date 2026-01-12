@@ -19,6 +19,52 @@ class template_form extends moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
+        // Presets Control
+        $presets = \filter_genericotwo\presets::fetch_presets();
+        $presetopts = ['' => get_string('choosedots')];
+        $presetdata = [];
+        // Re-key for simple array access in JS if needed, or just keep as list
+        // We will store all data in a hidden field
+        // Just keys for dropdown
+        $pcount = 0;
+        foreach($presets as $preset) {
+           $pname = isset($preset['name']) ? $preset['name'] : (isset($preset['key']) ? $preset['key'] : 'preset'.$pcount);
+           $presetopts[$pcount] = $pname;
+           $presetdata[$pcount] = $preset;
+           $pcount++;
+        }
+        
+        $json_presets = json_encode($presetdata);
+        
+        $html = \html_writer::tag('div', '', ['id' => 'filter_genericotwo_presets_container', 'class' => 'form-group row fitem']);
+        // Hidden data field
+        $mform->addElement('html', \html_writer::tag('input', '', 
+            ['id' => 'id_filter_genericotwo_presetdata', 'type' => 'hidden', 'value' => $json_presets]));
+
+        // Drag Drop Square
+        // We put it in a custom HTML element
+        $dragdropsquare = \html_writer::tag('div', get_string('bundle', 'filter_genericotwo'),
+                ['id' => 'id_filter_genericotwo_dragdropsquare',
+                        'class' => 'filter_genericotwo_dragdropsquare', 
+                        'style' => 'background: #cfc; border: 1px dashed #090; padding: 10px; text-align: center; cursor: pointer; float: right; width: 100px; display:inline-block; margin-left:10px;']);
+        
+        // Select Box
+        // 4th arg is 'nothing' option (null to use default or generated from opts), 5th is attributes.
+        // We manually added 'choosedots' to options, so we can pass null for 'nothing'.
+        $select = \html_writer::select($presetopts, 'filter_genericotwo_presets', '', null, ['id' => 'id_filter_genericotwo_presets', 'class' => 'custom-select']);
+        
+        $label = \html_writer::tag('label', get_string('presets', 'filter_genericotwo') . ' ', ['for' => 'id_filter_genericotwo_presets']);
+        
+        $controlhtml = \html_writer::tag('div', $dragdropsquare . $label . $select, ['class' => 'col-md-9 checkbox']);
+        $labelhtml = \html_writer::tag('div', '', ['class' => 'col-md-3 col-form-label pb-0 pt-0']); // Empty label col
+        
+        $mform->addElement('html', \html_writer::tag('div', $labelhtml . $controlhtml, ['class' => 'form-group row fitem']));
+        
+        // Init JS
+        global $PAGE;
+        $PAGE->requires->js_call_amd('filter_genericotwo/presets', 'init');
+
+
         $mform->addElement('text', 'version', get_string('template_version', constants::M_COMPONENT), ['size' => 64]);
         $mform->setType('version', PARAM_TEXT);
         $mform->addRule('version', null, 'required', null, 'client');

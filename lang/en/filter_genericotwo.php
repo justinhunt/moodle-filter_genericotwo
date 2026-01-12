@@ -39,3 +39,5 @@ $string['acecdn'] = 'Ace Editor CDN';
 $string['acecdn_desc'] = 'Choose the CDN to load Ace Editor from. Staticfile is recommended for users in China.';
 
 $string['required'] = 'This field is required.';
+$string['presets'] = 'Presets';
+$string['bundle'] = 'Bundle';
