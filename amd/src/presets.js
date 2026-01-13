@@ -149,6 +149,12 @@ define(['jquery', 'core/log'], function ($, log) {
                 }
 
                 if (controls[item] && value !== null) {
+
+                    // Convert legacy @@variables@@ to {{mustache}} variables
+                    if (typeof value === 'string') {
+                        value = value.replace(/@@([^@]+)@@/g, '{{$1}}');
+                    }
+
                     // Check Ace editor
                     if (window.ace) {
                         // Find editor

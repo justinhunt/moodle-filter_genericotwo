@@ -43,3 +43,12 @@ $string['acecdn_desc'] = 'Choose the CDN to load Ace Editor from. Staticfile is 
 $string['required'] = 'This field is required.';
 $string['presets'] = 'Presets';
 $string['bundle'] = 'Bundle';
+$string['handlelegacytags'] = 'Handle legacy tags';
+$string['handlelegacytags_desc'] = 'If enabled, this filter will also process {GENERICO:type="xx"} tags using Generico Two templates.';
+$string['migratelegacy'] = 'Migrate legacy';
+$string['migrateselected'] = 'Migrate selected templates';
+$string['selectall'] = 'Select all';
+$string['nomigrationcandidates'] = 'No templates available for migration (all Generico templates already exist in Generico Two).';
+$string['migrationsuccess'] = 'Successfully migrated {$a} templates.';
+$string['migrateconfirm'] = 'Are you sure you want to migrate the selected templates?';
+$string['presetavailable'] = 'Generico Two Preset Available';

@@ -72,9 +72,11 @@ if ($data = $form->get_data()) {
 echo $OUTPUT->header();
 
 echo html_writer::tag('p', get_string('templatesinstructions', 'filter_genericotwo'));
-echo html_writer::link(new moodle_url('/filter/genericotwo/templates.php', ['action' => 'add']), get_string('addtemplate', 'filter_genericotwo'), ['class' => 'btn btn-primary']);
-echo html_writer::empty_tag('br');
-echo html_writer::empty_tag('br');
+if ($action !== 'add' && $action !== 'edit') {
+    echo html_writer::link(new moodle_url('/filter/genericotwo/templates.php', ['action' => 'add']), get_string('addtemplate', 'filter_genericotwo'), ['class' => 'btn btn-primary']);
+    echo html_writer::empty_tag('br');
+    echo html_writer::empty_tag('br');
+}
 
 if ($action === 'add' || $action === 'edit') {
     if ($action === 'edit' && empty($data)) {

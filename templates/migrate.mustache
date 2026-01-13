@@ -1,0 +1,60 @@
+
+{{^hascandidates}}
+    <div class="alert alert-info">
+        {{#str}}nomigrationcandidates, filter_genericotwo{{/str}}
+    </div>
+{{/hascandidates}}
+
+{{#hascandidates}}
+<form action="{{actionurl}}" method="post">
+    <input type="hidden" name="action" value="migrate">
+    <input type="hidden" name="confirm" value="1">
+    <input type="hidden" name="sesskey" value="{{sesskey}}">
+
+    <table class="generaltable">
+        <thead>
+            <tr>
+                <th class="header c0" style="width: 20px;">
+                    <input type="checkbox" id="selectall" class="mr-1">
+                    <label for="selectall">{{#str}}selectall, filter_genericotwo{{/str}}</label>
+                </th>
+                <th class="header c1">{{#str}}template_templatekey, filter_genericotwo{{/str}}</th>
+                <th class="header c2">{{#str}}template_name, filter_genericotwo{{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#candidates}}
+            <tr>
+                <td class="cell c0">
+                    <input type="checkbox" name="ids[]" value="{{id}}" class="template-checkbox">
+                </td>
+                <td class="cell c1">
+                    {{key}}
+                    {{#presetavailable}}
+                        <div class="text-danger small">{{#str}}presetavailable, filter_genericotwo{{/str}}</div>
+                    {{/presetavailable}}
+                </td>
+                <td class="cell c2">{{name}}</td>
+            </tr>
+            {{/candidates}}
+        </tbody>
+    </table>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="{{#str}}migrateselected, filter_genericotwo{{/str}}" class="btn btn-primary">
+    </div>
+</form>
+
+{{#js}}
+require(['jquery'], function($) {
+    $('#selectall').change(function() {
+        var checkboxes = $('.template-checkbox');
+        if($(this).is(':checked')) {
+            checkboxes.prop('checked', true);
+        } else {
+            checkboxes.prop('checked', false);
+        }
+    });
+});
+{{/js}}
+{{/hascandidates}}

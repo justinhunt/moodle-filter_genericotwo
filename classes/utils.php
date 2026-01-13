@@ -50,11 +50,13 @@ class utils {
         // Let's do a general clean of all input here.
         $filterstring = clean_param($filterstring, PARAM_TEXT);
 
-        // This just removes the {GENERICO: .. }.
-        $rawproperties = explode("{G2:", $filterstring);
-        // Here we remove any html tags we find. They should not be in here.
-        $rawproperties = $rawproperties[1];
+        // Remove the opening tag (G2 or GENERICO)
+        $rawproperties = preg_replace('/^\{(?:G2|GENERICO):/i', '', $filterstring);
+        
+        // Remove the closing brace and any trailing content (though matched string usually ends with })
+        // We split by closing brace to get the inner content
         $rawproperties = explode("}", $rawproperties);
+        
         // Here we remove any html tags we find. They should not be in here
         // and we return the guts of the filter string for parsing.
         $rawproperties = strip_tags($rawproperties[0]);

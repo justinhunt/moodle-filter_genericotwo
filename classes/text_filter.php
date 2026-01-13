@@ -18,11 +18,24 @@ class text_filter extends \core_filters\text_filter {
      */
     public function filter($text, array $options = []) {
         // If we don't even have our tag, just bail out.
-        if (strpos($text, '{G2:') === false) {
+        // Check for G2 tag (fast check)
+        $hasg2 = strpos($text, '{G2:') !== false;
+        
+        // Check for Legacy tag if enabled
+        $handlelegacy = get_config('filter_genericotwo', 'handlelegacytags');
+        $haslegacy = false;
+        if ($handlelegacy) {
+            $haslegacy = stripos($text, '{GENERICO:') !== false;
+        }
+
+        if (!$hasg2 && !$haslegacy) {
             return $text;
         }
 
         $search = '/{G2:.*?}/is';
+        if ($handlelegacy) {
+            $search = '/\{(?:G2|GENERICO):.*?\}/is';
+        }
         if (!is_string($text)) {
             // Non string data can not be filtered anyway.
             return $text;
