@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -19,6 +33,13 @@ $string['template_jscontent'] = 'JS Content';
 $string['template_previewcontext'] = 'Preview context';
 $string['template_name'] = 'Name';
 $string['template_content'] = 'Content';
+$string['template_test1'] = 'Test String 1';
+$string['template_test2'] = 'Test String 2';
+$string['nopreviewstring'] = 'The test string is empty. It should be something like {G2:type=mytemplate,var=abc}';
+$string['preview'] = 'Preview';
+$string['preview_desc'] = 'Preview the template output using the Test 1 or Test 2 strings.';
+$string['test1'] = 'Test 1';
+$string['test2'] = 'Test 2';
 $string['addtemplate'] = 'Add template';
 $string['edittemplate'] = 'Edit template';
 $string['deletetemplate'] = 'Delete template';

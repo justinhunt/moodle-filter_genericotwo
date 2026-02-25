@@ -1,8 +1,25 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->libdir . '/tablelib.php');
+
+use filter_genericotwo\form\template_form;
 
 $context = context_system::instance();
 require_login();
@@ -15,9 +32,6 @@ $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('templates', 'filter_genericotwo'));
 $PAGE->set_heading(get_string('templates', 'filter_genericotwo'));
 
-require_once(__DIR__ . '/classes/form/template_form.php');
-
-use filter_genericotwo\form\template_form;
 
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $id     = optional_param('id', 0, PARAM_INT);
@@ -49,7 +63,6 @@ if ($data = $form->get_data()) {
     $record->customcss = $data->customcss;
     $record->importcss = $data->importcss;
     $record->variabledefaults = $data->variabledefaults;
-    $record->previewcontext = $data->previewcontext;
     $record->allowedcontexts = $data->allowedcontexts;
     $record->allowedcontextids = $data->allowedcontextids;
     $record->dataset = $data->dataset;
@@ -57,6 +70,8 @@ if ($data = $form->get_data()) {
     $record->templateend = $data->templateend;
     $record->instructions = $data->instructions['text'];
     $record->instructionsformat = $data->instructions['format'];
+    $record->test1 = $data->test1;
+    $record->test2 = $data->test2;
     $record->timemodified = time();
     if (empty($data->id)) {
         $record->timecreated = time();
@@ -83,7 +98,7 @@ if ($action === 'add' || $action === 'edit') {
         if ($tmpl = $DB->get_record('filter_genericotwo_templates', ['id' => $id], '*', IGNORE_MISSING)) {
             $tmpl->instructions = [
                 'text' => $tmpl->instructions,
-                'format' => $tmpl->instructionsformat ?? FORMAT_MOODLE
+                'format' => $tmpl->instructionsformat ?? FORMAT_MOODLE,
             ];
             $form->set_data($tmpl);
         } else {
@@ -94,9 +109,10 @@ if ($action === 'add' || $action === 'edit') {
 
     // Init Ace Editor
     $enableace = get_config('filter_genericotwo', 'enableace');
-    if ($enableace === false) { $enableace = 1; } // Default true if not set
+    if ($enableace === false) { $enableace = 1;
+    } // Default true if not set
     $acecdn = get_config('filter_genericotwo', 'acecdn');
-    
+
     $PAGE->requires->js_call_amd('filter_genericotwo/ace_init', 'init', [['enableace' => $enableace, 'acecdn' => $acecdn]]);
 
     echo $OUTPUT->footer();

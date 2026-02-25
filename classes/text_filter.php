@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
 namespace filter_genericotwo;
 
 defined('MOODLE_INTERNAL') || die();
@@ -20,7 +35,7 @@ class text_filter extends \core_filters\text_filter {
         // If we don't even have our tag, just bail out.
         // Check for G2 tag (fast check)
         $hasg2 = strpos($text, '{G2:') !== false;
-        
+
         // Check for Legacy tag if enabled
         $handlelegacy = get_config('filter_genericotwo', 'handlelegacytags');
         $haslegacy = false;
@@ -59,8 +74,7 @@ class text_filter extends \core_filters\text_filter {
      * @param array $link
      * @return mixed
      */
-    private function filter_genericotwo_callback(array $matches)
-    {
+    private function filter_genericotwo_callback(array $matches) {
         global $CFG, $COURSE, $USER, $PAGE, $DB;
 
         $conf = get_object_vars(get_config('filter_genericotwo'));
@@ -76,7 +90,6 @@ class text_filter extends \core_filters\text_filter {
 
         // Add a unique id to the filter props.
         $filterprops['uniqid'] = uniqid('fg_');
-        
 
         // We use this to see if its a web service calling this.
         // in which case we return the alternate content.
@@ -161,7 +174,7 @@ class text_filter extends \core_filters\text_filter {
         if (!empty($template->customcss)) {
             $url = '/filter/genericotwo/css.php';
             // Use time modified or current time to bust cache if possible, but we don't have it handy in the filterprops or template object easily without more queries if not selected.
-            // But we fetched the whole template record, so we might have timemodified? 
+            // But we fetched the whole template record, so we might have timemodified?
             // The template object comes from $DB->get_record, so check if it has timemodified.
             // Standard Generico tables usually have it. Let's assume yes or default to 0.
             $rev = isset($template->timemodified) ? $template->timemodified : 0;
@@ -204,7 +217,7 @@ class text_filter extends \core_filters\text_filter {
             }
         }
 
-        //Add context from /  URLPARAMS / COURSE/ USER / Defaults
+        // Add context from /  URLPARAMS / COURSE/ USER / Defaults
         $haystack = $mustachestring . ' ' . $datasetvars . ' ' . $jsstring;
         // Fetch URL params for this template
         $urlprops = $this->fetch_url_params($haystack);
@@ -218,7 +231,7 @@ class text_filter extends \core_filters\text_filter {
             $filterprops = array_merge($filterprops, $courseprops);
         }
 
-         //Fetch user props for this template
+         // Fetch user props for this template
         $userprops = $this->fetch_user_props($haystack);
         if (!empty($userprops)) {
             $filterprops = array_merge($filterprops, $userprops);
@@ -241,37 +254,157 @@ class text_filter extends \core_filters\text_filter {
                             $defaultprops[$name] = $value;
                         }
                     }
-                }   
+                }
             }
         }
         if (!empty($defaultprops)) {
             $filterprops = array_merge($filterprops, $defaultprops);
         }
-        
-       
-       // Dataset
+
+        // Dataset
         if(!empty($template->dataset)) {
-             //replace any variables from filterprops in datasetvars 
+             // replace any variables from filterprops in datasetvars
              // A dataset vars might look like: {{COURSE:id}},{{USER:firstname}},'hello',{{weather}}
              // in filterprops we might have: COURSE:id, USER:firstname, weather
              // so we surround our filterprops field name with {{ and }} and do an str_replace
              // We DON'T put any variables in the dataset body, because we want to put them all through moodles cleaning process
-             if(!empty($template->datasetvars)) {
-                 $datasetvars = $template->datasetvars;
-                 foreach ($filterprops as $name => $value) {
-                     $datasetvars = str_replace('{{' . $name . '}}', $value, $datasetvars);
-                 }
-             }
+            if(!empty($template->datasetvars)) {
+                $datasetvars = $template->datasetvars;
+                foreach ($filterprops as $name => $value) {
+                    $datasetvars = str_replace('{{' . $name . '}}', $value, $datasetvars);
+                }
+            }
             // Fetch dataset for this template.
             $dataset = $this->fetch_dataset($template, $datasetvars);
             if (!empty($dataset)) {
                 $filterprops['DATASET'] = $dataset;
             } else {
                 $filterprops['DATASET'] = [];
-            }   
-        } 
+            }
+        }
 
-        //Ready to go so ..
+        // Ready to go so ..
+        $renderer = $PAGE->get_renderer(constants::M_COMPONENT);
+        return $renderer->do_render($mustachestring, $jsstring, $filterprops);
+    }
+
+    /**
+     * Preview method used by the fragment API.
+     * Bypasses the database call and uses the form data template.
+     *
+     * @param \stdClass $template Form data simulated as a template record
+     * @param string $text The filter string to evaluate
+     * @return string Processed HTML
+     */
+    public function preview_filter($template, $text) {
+        $search = '/\{?(?:G2|GENERICO):[^}]+\}?/is';
+        if (!is_string($text)) {
+            return $text;
+        }
+
+        // Create a callback that forces the use of our pre-populated template
+        $newtext = preg_replace_callback($search, function($matches) use ($template) {
+            return $this->preview_callback($matches, $template);
+        }, $text);
+
+        if (is_null($newtext) || $newtext === $text) {
+            return $text;
+        }
+
+        return $newtext;
+    }
+
+    /**
+     * Callback used by `preview_filter`, mirrors `filter_genericotwo_callback` but ignores DB lookup and roles.
+     */
+    private function preview_callback(array $matches, \stdClass $template) {
+        $template = clone $template;
+        global $CFG, $PAGE, $COURSE;
+
+        $filterprops = utils::fetch_filter_properties($matches[0]);
+        if (empty($filterprops)) {
+            return "";
+        }
+        $filterprops['uniqid'] = uniqid('fg_preview_');
+
+        if (isset($filterprops['type']) && !empty($filterprops['type'])) {
+            $type = $filterprops['type'];
+            $isendtag = false;
+            // Check for _end suffix.
+            if (substr($type, -4) === '_end') {
+                $type = substr($type, 0, -4);
+                $isendtag = true;
+            }
+
+            if ($isendtag) {
+                $mustachestring = isset($template->templateend) ? $template->templateend : '';
+                $jsstring = '';
+                $datasetvars = '';
+                $template->dataset = '';
+            } else {
+                $mustachestring = isset($template->content) ? $template->content : '';
+                $jsstring = isset($template->jscontent) ? $template->jscontent : '';
+                $datasetvars = isset($template->datasetvars) ? $template->datasetvars : '';
+            }
+        } else {
+            return '';
+        }
+
+        // Determine context for properties
+        $haystack = $mustachestring . ' ' . $datasetvars . ' ' . $jsstring;
+
+        $urlprops = $this->fetch_url_params($haystack);
+        if (!empty($urlprops)) {
+            $filterprops = array_merge($filterprops, $urlprops);
+        }
+
+        $courseprops = $this->fetch_course_props($haystack);
+        if (!empty($courseprops)) {
+            $filterprops = array_merge($filterprops, $courseprops);
+        }
+
+        $userprops = $this->fetch_user_props($haystack);
+        if (!empty($userprops)) {
+            $filterprops = array_merge($filterprops, $userprops);
+        }
+
+        // Defaults
+        $defaults = isset($template->variabledefaults) ? $template->variabledefaults : '';
+        $defaultprops = [];
+        if (!empty($defaults)) {
+            $defaults = "{G2:" . $defaults . "}";
+            $defaultprops = \filter_genericotwo\utils::fetch_filter_properties($defaults);
+            if (!empty($defaultprops)) {
+                foreach ($defaultprops as $name => $value) {
+                    if (!array_key_exists($name, $filterprops)) {
+                        if (strpos($value, '|') !== false) {
+                            $value = explode('|', $value)[0];
+                            $defaultprops[$name] = $value;
+                        }
+                    }
+                }
+            }
+        }
+        if (!empty($defaultprops)) {
+            $filterprops = array_merge($filterprops, $defaultprops);
+        }
+
+        // Dataset
+        if(!empty($template->dataset)) {
+            if(!empty($datasetvars)) {
+                foreach ($filterprops as $name => $value) {
+                    $datasetvars = str_replace('{{' . $name . '}}', $value, $datasetvars);
+                }
+            }
+            $dataset = $this->fetch_dataset($template, $datasetvars);
+            if (!empty($dataset)) {
+                $filterprops['DATASET'] = $dataset;
+            } else {
+                $filterprops['DATASET'] = [];
+            }
+        }
+
+        // Output
         $renderer = $PAGE->get_renderer(constants::M_COMPONENT);
         return $renderer->do_render($mustachestring, $jsstring, $filterprops);
     }
@@ -286,12 +419,12 @@ class text_filter extends \core_filters\text_filter {
             foreach ($thefields as $urlprop) {
 
                 if (empty($urlprop)) {
-                    continue;   
+                    continue;
                 }
 
                 // Check if it exists in the params to the url and if so, set it.
                 $propvalue = optional_param($urlprop, '', PARAM_TEXT);
-                
+
                 // Add prop to return array
                 $filterprops['URLPARAM:' . $urlprop] = $propvalue;
             }
@@ -305,7 +438,7 @@ class text_filter extends \core_filters\text_filter {
 
         if (strpos($templatebody, '{{COURSE:') !== false) {
             $coursevars = get_object_vars($COURSE);
-            
+
             // Custom fields.
             if (class_exists('\core_customfield\handler')) {
                 $handler = \core_customfield\handler::get_handler('core_course', 'course');
@@ -343,11 +476,11 @@ class text_filter extends \core_filters\text_filter {
                 }
             }
         }
-        return $filterprops; 
+        return $filterprops;
     }
 
     private function fetch_user_props($templatebody) {
-        global $USER, $CFG; 
+        global $USER, $CFG;
         $filterprops = [];
 
         // If we have user variables e.g {{USER:firstname}}
@@ -358,9 +491,8 @@ class text_filter extends \core_filters\text_filter {
             // The ([^}]+) captures the "someprop" part
             preg_match_all('/\{\{USER:([^}]+)\}\}/', $templatebody, $matches);
             // $matches[1] contains the captured groups (the property names)
-            $thefields = array_unique($matches[1]);    
- 
-         
+            $thefields = array_unique($matches[1]);
+
             // User Props.
             $profileprops = false;
             foreach ($thefields as $thefield) {
@@ -403,7 +535,7 @@ class text_filter extends \core_filters\text_filter {
                     $filterprops['USER:' . $thefield] = $propvalue;
                 }
             }
-        }//end of of we {{USER:xxx}}    
+        }//end of of we {{USER:xxx}}
         return $filterprops;
     }
 
@@ -433,7 +565,7 @@ class text_filter extends \core_filters\text_filter {
         } catch (Exception $e) {
             return [];
         }
-        
+
     }
 
     /**
@@ -450,7 +582,7 @@ class text_filter extends \core_filters\text_filter {
             return false;
         }
 
-        // Allowed specific context ids.    
+        // Allowed specific context ids.
         $allowedcontextids = $this->explode_csv_list($template->allowedcontextids);
         if (!empty($allowedcontextids) && !in_array($context->id, $allowedcontextids)) {
             return false;
@@ -460,11 +592,11 @@ class text_filter extends \core_filters\text_filter {
     }
 
      /**
-     * Get the context name
-     *
-     * @param context|null $context
-     * @return string
-     */
+      * Get the context name
+      *
+      * @param context|null $context
+      * @return string
+      */
     private function get_context_name(\context $context): string {
         if (empty($context)) {
             return 'empty';

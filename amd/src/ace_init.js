@@ -76,6 +76,7 @@ define(['jquery'], function ($) {
                         editor.getSession().setMode('ace/mode/' + item.mode);
                         editor.setTheme('ace/theme/chrome');
                         editor.setValue(textarea.val(), 1); // 1 = moves cursor to end
+                        editor.getSession().getUndoManager().reset();
 
                         // Update textarea on change
                         editor.getSession().on('change', function () {

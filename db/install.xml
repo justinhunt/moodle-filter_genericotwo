@@ -21,7 +21,8 @@
                 <FIELD NAME="templateend" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="instructions" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="instructionsformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
-                <FIELD NAME="previewcontext" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="test1" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="test2" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
                 <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
             </FIELDS>

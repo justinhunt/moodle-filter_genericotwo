@@ -46,7 +46,6 @@ function xmldb_filter_genericotwo_upgrade($oldversion) {
         $table->add_field('variables', XMLDB_TYPE_TEXT, null, null, false);
         $table->add_field('content', XMLDB_TYPE_TEXT, null, null, true);
         $table->add_field('jscontent', XMLDB_TYPE_TEXT, null, null, false);
-        $table->add_field('previewcontext', XMLDB_TYPE_TEXT, null, null, false);
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, true, '0');
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, true, '0');
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -111,6 +110,24 @@ function xmldb_filter_genericotwo_upgrade($oldversion) {
 
         // Savepoint reached.
         upgrade_plugin_savepoint(true, 2025121604, 'filter', 'genericotwo');
+    }
+
+    if ($oldversion < 2026022501) {
+        $table = new xmldb_table('filter_genericotwo_templates');
+
+        // Adding fields test1 and test2.
+        $field1 = new xmldb_field('test1', XMLDB_TYPE_TEXT, null, null, null, null, null, 'instructionsformat');
+        if (!$dbman->field_exists($table, $field1)) {
+            $dbman->add_field($table, $field1);
+        }
+
+        $field2 = new xmldb_field('test2', XMLDB_TYPE_TEXT, null, null, null, null, null, 'test1');
+        if (!$dbman->field_exists($table, $field2)) {
+            $dbman->add_field($table, $field2);
+        }
+
+        // Savepoint reached.
+        upgrade_plugin_savepoint(true, 2026022501, 'filter', 'genericotwo');
     }
 
     return true;
