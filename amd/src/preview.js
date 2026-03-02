@@ -88,6 +88,10 @@ define(['jquery', 'core/log', 'core/str', 'core/fragment', 'core/templates'],
                 var fragment = Fragment.loadFragment('filter_genericotwo', 'preview', contextId, params);
 
                 fragment.done(function (html, js) {
+                    //If the html does not start with a div, wrap it in one. Otherwwise it will break
+                    if (!html.startsWith('<div')) {
+                        html = '<div>' + html + '</div>';
+                    }
                     Templates.replaceNodeContents(self.controls.previewArea.get(0), html, js);
                 }).fail(function (ex) {
                     self.controls.previewArea.html('<div class="alert alert-danger">' + ex.message + '</div>');

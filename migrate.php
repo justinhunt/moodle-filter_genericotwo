@@ -46,71 +46,99 @@ if ($action === 'migrate' && $confirm && !empty($ids)) {
         // Keys in filter_generico config are like templatekey_1, template_1, etc.
 
         $key = 'templatekey_' . $tindex;
-        if (!property_exists($g2config, $key)) { continue;
+        if (!property_exists($g2config, $key)) {
+            continue;
         }
 
         $templatekey = $g2config->{$key};
 
         // Double check it doesn't exist
         if ($DB->record_exists('filter_genericotwo_templates', ['templatekey' => $templatekey])) {
-             continue;
+            continue;
         }
 
-        $record = new \stdClass();
-        $record->templatekey = $templatekey;
-        $record->name = isset($g2config->{'templatename_' . $tindex}) ? $g2config->{'templatename_' . $tindex} : $templatekey;
-        $record->version = isset($g2config->{'templateversion_' . $tindex}) ? $g2config->{'templateversion_' . $tindex} : '';
-        $record->instructions = isset($g2config->{'templateinstructions_' . $tindex}) ? $g2config->{'templateinstructions_' . $tindex} : '';
-        $record->content = isset($g2config->{'template_' . $tindex}) ? $g2config->{'template_' . $tindex} : '';
-        $record->templateend = isset($g2config->{'templateend_' . $tindex}) ? $g2config->{'templateend_' . $tindex} : '';
+        // If a preset exists with the same templatekey, we should use that instead.
+        $preset = \filter_genericotwo\presets::fetch_preset($templatekey);
+        if ($preset) {
+            $record = new \stdClass();
+            $record->templatekey = isset($preset->templatekey) ? $preset->templatekey : (isset($preset->key) ? $preset->key : '');
+            $record->name = isset($preset->name) ? $preset->name : $record->templatekey;
+            $record->version = isset($preset->version) ? $preset->version : '';
+            $record->instructions = isset($preset->instructions) ? $preset->instructions : '';
+            $record->content = isset($preset->content) ? $preset->content : (isset($preset->body) ? $preset->body : '');
+            $record->templateend = isset($preset->templateend) ? $preset->templateend : (isset($preset->bodyend) ? $preset->bodyend : '');
+            $record->importcss = isset($preset->importcss) ? $preset->importcss : (isset($preset->requirecss) ? $preset->requirecss : '');
+            $record->customcss = isset($preset->customcss) ? $preset->customcss : (isset($preset->style) ? $preset->style : '');
+            $record->jscontent = isset($preset->jscontent) ? $preset->jscontent : (isset($preset->script) ? $preset->script : '');
+            $record->variabledefaults = isset($preset->variabledefaults) ? $preset->variabledefaults : (isset($preset->defaults) ? $preset->defaults : '');
+            $record->dataset = isset($preset->dataset) ? $preset->dataset : '';
+            $record->datasetvars = isset($preset->datasetvars) ? $preset->datasetvars : '';
 
-        // Map CSS/JS
-        $record->importcss = isset($g2config->{'templaterequire_css_' . $tindex}) ? $g2config->{'templaterequire_css_' . $tindex} : '';
-        $record->customcss = isset($g2config->{'templatestyle_' . $tindex}) ? $g2config->{'templatestyle_' . $tindex} : '';
-        $record->jscontent = isset($g2config->{'templatescript_' . $tindex}) ? $g2config->{'templatescript_' . $tindex} : '';
+            // Map Security
+            $record->allowedcontexts = isset($preset->allowedcontexts) ? $preset->allowedcontexts : '';
+            $record->allowedcontextids = isset($preset->allowedcontextids) ? $preset->allowedcontextids : '';
 
-        // Map Defaults and Dataset
-        $record->variabledefaults = isset($g2config->{'templatedefaults_' . $tindex}) ? $g2config->{'templatedefaults_' . $tindex} : '';
-        $record->dataset = isset($g2config->{'dataset_' . $tindex}) ? $g2config->{'dataset_' . $tindex} : '';
-        $record->datasetvars = isset($g2config->{'datasetvars_' . $tindex}) ? $g2config->{'datasetvars_' . $tindex} : '';
+        } else {
+            $record = new \stdClass();
+            $record->templatekey = $templatekey;
 
-        // Map Security
-        $record->allowedcontexts = isset($g2config->{'allowedcontexts_' . $tindex}) ? $g2config->{'allowedcontexts_' . $tindex} : '';
-        $record->allowedcontextids = isset($g2config->{'allowedcontextids_' . $tindex}) ? $g2config->{'allowedcontextids_' . $tindex} : '';
+            $record->name = isset($g2config->{'templatename_' . $tindex}) ? $g2config->{'templatename_' . $tindex} : $templatekey;
+            $record->version = isset($g2config->{'templateversion_' . $tindex}) ? $g2config->{'templateversion_' . $tindex} : '';
+            $record->instructions = isset($g2config->{'templateinstructions_' . $tindex}) ? $g2config->{'templateinstructions_' . $tindex} : '';
+            $record->content = isset($g2config->{'template_' . $tindex}) ? $g2config->{'template_' . $tindex} : '';
+            $record->templateend = isset($g2config->{'templateend_' . $tindex}) ? $g2config->{'templateend_' . $tindex} : '';
 
-        // Convert legacy @@variables@@ to {{mustache}} variables
-        $fieldstoconvert = ['content', 'templateend', 'jscontent', 'customcss', 'importcss', 'variabledefaults', 'dataset', 'datasetvars', 'instructions'];
-        foreach ($fieldstoconvert as $field) {
-            if (!empty($record->$field)) {
-                $record->$field = preg_replace('/@@([^@]+)@@/', '{{$1}}', $record->$field);
+            // Map CSS/JS
+            $record->importcss = isset($g2config->{'templaterequire_css_' . $tindex}) ? $g2config->{'templaterequire_css_' . $tindex} : '';
+            $record->customcss = isset($g2config->{'templatestyle_' . $tindex}) ? $g2config->{'templatestyle_' . $tindex} : '';
+            $record->jscontent = isset($g2config->{'templatescript_' . $tindex}) ? $g2config->{'templatescript_' . $tindex} : '';
+
+            // Map Defaults and Dataset
+            $record->variabledefaults = isset($g2config->{'templatedefaults_' . $tindex}) ? $g2config->{'templatedefaults_' . $tindex} : '';
+            $record->dataset = isset($g2config->{'dataset_' . $tindex}) ? $g2config->{'dataset_' . $tindex} : '';
+            $record->datasetvars = isset($g2config->{'datasetvars_' . $tindex}) ? $g2config->{'datasetvars_' . $tindex} : '';
+
+            // Map Security
+            $record->allowedcontexts = isset($g2config->{'allowedcontexts_' . $tindex}) ? $g2config->{'allowedcontexts_' . $tindex} : '';
+            $record->allowedcontextids = isset($g2config->{'allowedcontextids_' . $tindex}) ? $g2config->{'allowedcontextids_' . $tindex} : '';
+
+            // Convert legacy @@variables@@ to {{mustache}} variables
+            $fieldstoconvert = ['content', 'templateend', 'jscontent', 'customcss', 'importcss', 'variabledefaults', 'dataset', 'datasetvars', 'instructions'];
+            foreach ($fieldstoconvert as $field) {
+                if (!empty($record->$field)) {
+                    $record->$field = preg_replace('/@@([^@]+)@@/', '{{$1}}', $record->$field);
+                }
             }
+
+            // Do our best to implement requiresjs libs from the old config.
+            $jswrapper = constants::M_JS_DEFAULT;
+            $requirejs = isset($g2config->{'templaterequire_js_' . $tindex}) ? $g2config->{'templaterequire_js_' . $tindex} : '';
+            if (!empty($requirejs)) {
+                $jswrapper = str_replace("'core/log'", "'core/log','" . $requirejs . "'", $jswrapper);
+                // Get the library name from the requirejs string, eg "https://example.com/some/somelib.min.js" -> "somelib"
+                $libname = basename($requirejs);
+                $libname = str_replace('.min.js', '', $libname);
+                $libname = str_replace('-min.js', '', $libname);
+                $libname = str_replace('_min.js', '', $libname);
+                $jswrapper = str_replace("($, log)", "($, log, $libname)", $jswrapper);
+            }
+
+            // Re write the way variables in old generico were concatenated with strings to the generico two way
+            // e.g. 'abc' + {{AUTOID}} -> 'abc{{AUTOID}}'
+            // e.g {{AUTOID}} + 'abc' -> '{{AUTOID}}abc'
+            $jscontent = $record->jscontent;
+            $oldjscontent = '';
+            while ($oldjscontent !== $jscontent) {
+                $oldjscontent = $jscontent;
+                $jscontent = preg_replace('/([\'"])\s*\+\s*(\{\{[^}]+\}\})/', '$2$1', $jscontent);
+                $jscontent = preg_replace('/(\{\{[^}]+\}\})\s*\+\s*([\'"])/', '$2$1', $jscontent);
+            }
+
+            // Sandwich the JS content with the default amd loader.
+            $record->jscontent = str_replace("@@REPLACEME@@", $jscontent, $jswrapper);
         }
 
-        // Do our best to implement requiresjs libs from the old config.
-        $jswrapper = constants::M_JS_DEFAULT;
-        $requirejs = isset($g2config->{'templaterequire_js_' . $tindex}) ? $g2config->{'templaterequire_js_' . $tindex} : '';
-        if (!empty($requirejs)) {
-            $jswrapper = str_replace("'core/log'", "'core/log','" . $requirejs . "'", $jswrapper);
-            // get the library name from the requirejs string, eg "https://example.com/some/somelib.min.js" -> "somelib"
-            $libname = basename($requirejs);
-            $libname = str_replace('.min.js', '', $libname);
-            $jswrapper = str_replace("($, log)", "($, log, $libname)", $jswrapper);
-        }
-
-        // Re write the way variables in old generico were concatenated with strings to the generico two way
-        // e.g. 'abc' + {{AUTOID}} -> 'abc{{AUTOID}}'
-        // e.g {{AUTOID}} + 'abc' -> '{{AUTOID}}abc'
-        $jscontent = $record->jscontent;
-        $oldjscontent = '';
-        while ($oldjscontent !== $jscontent) {
-            $oldjscontent = $jscontent;
-            $jscontent = preg_replace('/([\'"])\s*\+\s*(\{\{[^}]+\}\})/', '$2$1', $jscontent);
-            $jscontent = preg_replace('/(\{\{[^}]+\}\})\s*\+\s*([\'"])/', '$2$1', $jscontent);
-        }
-
-        // Sandwich the JS content with the default amd loader.
-        $record->jscontent = str_replace("@@REPLACEME@@", $jscontent, $jswrapper);
-
+        // Write the new template to the database.
         $record->timecreated = time();
         $record->timemodified = time();
 
