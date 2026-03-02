@@ -106,6 +106,8 @@ class template_form extends moodleform {
 
         $mform->addElement('textarea', 'jscontent', get_string('template_jscontent', constants::M_COMPONENT), ['rows' => 10]);
         $mform->setType('jscontent', PARAM_RAW);
+        $defaultjscontent = str_replace("@@REPLACEME@@", "", constants::M_JS_DEFAULT);
+        $mform->setDefault('jscontent', $defaultjscontent);
 
         // Preview Settings
         $mform->addElement('header', 'hdr_preview', get_string('preview', constants::M_COMPONENT));

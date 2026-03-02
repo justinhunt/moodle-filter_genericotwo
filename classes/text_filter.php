@@ -125,7 +125,6 @@ class text_filter extends \core_filters\text_filter {
         }
 
         // Determine which template we are using.
-        // Determine which template we are using.
         if (isset($filterprops['type']) && !empty($filterprops['type'])) {
             $type = $filterprops['type'];
             $isendtag = false;
@@ -208,7 +207,7 @@ class text_filter extends \core_filters\text_filter {
         }
 
         // Check context is allowed.
-        if(!empty($template->allowedcontexts) || !empty($template->allowedcontextids)) {
+        if (!empty($template->allowedcontexts) || !empty($template->allowedcontextids)) {
             if (!$context) {
                 $context = \context_course::instance($COURSE->id);
             }
@@ -246,13 +245,15 @@ class text_filter extends \core_filters\text_filter {
             // Replace our defaults, if not spec in the the filter string.
             if (!empty($defaultprops)) {
                 foreach ($defaultprops as $name => $value) {
-                    // This prevents overwriting any props that are already set.
+                    // Only overwrite if not already set.
                     if (!array_key_exists($name, $filterprops)) {
                         // If we have options as defaults, lets just take the first one.
                         if (strpos($value, '|') !== false) {
                             $value = explode('|', $value)[0];
-                            $defaultprops[$name] = $value;
                         }
+                        $defaultprops[$name] = $value;
+                    } else {
+                        unset($defaultprops[$name]);
                     }
                 }
             }
@@ -262,13 +263,13 @@ class text_filter extends \core_filters\text_filter {
         }
 
         // Dataset
-        if(!empty($template->dataset)) {
+        if (!empty($template->dataset)) {
              // replace any variables from filterprops in datasetvars
              // A dataset vars might look like: {{COURSE:id}},{{USER:firstname}},'hello',{{weather}}
              // in filterprops we might have: COURSE:id, USER:firstname, weather
              // so we surround our filterprops field name with {{ and }} and do an str_replace
              // We DON'T put any variables in the dataset body, because we want to put them all through moodles cleaning process
-            if(!empty($template->datasetvars)) {
+            if (!empty($template->datasetvars)) {
                 $datasetvars = $template->datasetvars;
                 foreach ($filterprops as $name => $value) {
                     $datasetvars = str_replace('{{' . $name . '}}', $value, $datasetvars);
@@ -315,7 +316,8 @@ class text_filter extends \core_filters\text_filter {
     }
 
     /**
-     * Callback used by `preview_filter`, mirrors `filter_genericotwo_callback` but ignores DB lookup and roles.
+     * Callback used by `preview_filter`, mirrors `filter_genericotwo_callback` 
+     * but ignores DB lookup and roles.
      */
     private function preview_callback(array $matches, \stdClass $template) {
         $template = clone $template;
@@ -376,11 +378,15 @@ class text_filter extends \core_filters\text_filter {
             $defaultprops = \filter_genericotwo\utils::fetch_filter_properties($defaults);
             if (!empty($defaultprops)) {
                 foreach ($defaultprops as $name => $value) {
+                     // Only overwrite if not already set.
                     if (!array_key_exists($name, $filterprops)) {
+                        // If we have options as defaults, lets just take the first one.
                         if (strpos($value, '|') !== false) {
                             $value = explode('|', $value)[0];
-                            $defaultprops[$name] = $value;
                         }
+                        $defaultprops[$name] = $value;
+                    } else {
+                        unset($defaultprops[$name]);
                     }
                 }
             }

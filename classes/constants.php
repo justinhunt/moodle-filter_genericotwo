@@ -29,4 +29,7 @@ class constants {
      * @var string Frankenstyle name of plugin.
      */
     const M_COMPONENT = 'filter_genericotwo';
+    const M_JS_DEFAULT = "require(['jquery','core/log'], function($, log) {
+        @@REPLACEME@@
+    });";
 }
