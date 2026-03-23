@@ -9,14 +9,12 @@
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
                 <FIELD NAME="importcss" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="customcss" TYPE="text" NOTNULL="false"/>
-                <FIELD NAME="importcss" TYPE="text" NOTNULL="false"/>
-                <FIELD NAME="customcss" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="variabledefaults" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="content" TYPE="text" NOTNULL="true"/>
                 <FIELD NAME="jscontent" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="allowedcontexts" TYPE="char" LENGTH="255" NOTNULL="false"/>
                 <FIELD NAME="allowedcontextids" TYPE="char" LENGTH="255" NOTNULL="false"/>
-                <FIELD NAME="dataset" TYPE="char" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="dataset" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="datasetvars" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="templateend" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="instructions" TYPE="text" NOTNULL="false"/>
