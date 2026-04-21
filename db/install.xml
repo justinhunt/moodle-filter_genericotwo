@@ -9,8 +9,6 @@
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
                 <FIELD NAME="importcss" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="customcss" TYPE="text" NOTNULL="false"/>
-                <FIELD NAME="importcss" TYPE="text" NOTNULL="false"/>
-                <FIELD NAME="customcss" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="variabledefaults" TYPE="text" NOTNULL="false"/>
                 <FIELD NAME="content" TYPE="text" NOTNULL="true"/>
                 <FIELD NAME="jscontent" TYPE="text" NOTNULL="false"/>
