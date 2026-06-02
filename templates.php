@@ -107,13 +107,7 @@ if ($action === 'add' || $action === 'edit') {
     }
     $form->display();
 
-    // Init Ace Editor
-    $enableace = get_config('filter_genericotwo', 'enableace');
-    if ($enableace === false) { $enableace = 1;
-    } // Default true if not set
-    $acecdn = get_config('filter_genericotwo', 'acecdn');
-
-    $PAGE->requires->js_call_amd('filter_genericotwo/ace_init', 'init', [['enableace' => $enableace, 'acecdn' => $acecdn]]);
+    $PAGE->requires->js_call_amd('filter_genericotwo/codemirror_init', 'init');
 
     echo $OUTPUT->footer();
     exit;

@@ -13,23 +13,7 @@ if ($hassiteconfig) {
     $settingspage = new admin_settingpage('filtersettinggenericotwo', get_string('generalsettings', 'admin'));
     $ADMIN->add($G2_categoryname, $settingspage);
 
-    $settingspage->add(new admin_setting_configcheckbox(
-        'filter_genericotwo/enableace',
-        get_string('enableace', 'filter_genericotwo'),
-        get_string('enableace_desc', 'filter_genericotwo'),
-        1
-    ));
 
-    $settingspage->add(new admin_setting_configselect(
-        'filter_genericotwo/acecdn',
-        get_string('acecdn', 'filter_genericotwo'),
-        get_string('acecdn_desc', 'filter_genericotwo'),
-        'jsdelivr',
-        [
-            'jsdelivr' => 'JSDelivr (Global)',
-            'unpkg' => 'Unpkg (Global/China)'
-        ]
-    ));
 
     $settingspage->add(new admin_setting_configcheckbox(
         'filter_genericotwo/handlelegacytags',
