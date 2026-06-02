@@ -107,7 +107,8 @@ if ($action === 'add' || $action === 'edit') {
     }
     $form->display();
 
-    $PAGE->requires->js_call_amd('filter_genericotwo/codemirror_init', 'init');
+    $enableaihelper = get_config('filter_genericotwo', 'enableaihelper') ? true : false;
+    $PAGE->requires->js_call_amd('filter_genericotwo/codemirror_init', 'init', [['enableaihelper' => $enableaihelper]]);
 
     echo $OUTPUT->footer();
     exit;

@@ -73,3 +73,14 @@ $string['nomigrationcandidates'] = 'No templates available for migration (all Ge
 $string['migrationsuccess'] = 'Successfully migrated {$a} templates.';
 $string['migrateconfirm'] = 'Are you sure you want to migrate the selected templates?';
 $string['presetavailable'] = 'Generico Two Preset Available';
+
+$string['enableaihelper'] = 'Enable AI Helper';
+$string['enableaihelper_desc'] = 'Enable the AI Wizard button for template editing.';
+$string['aihelper_modal_title'] = 'AI Wizard';
+$string['aihelper_modal_instruction'] = 'Enter instructions for the AI to modify the template content. The AI will receive the content of all editors on this page.';
+$string['aihelper_prompt_label'] = 'Instructions';
+$string['aihelper_prompt_placeholder'] = 'E.g., Format the HTML, add a basic layout, etc.';
+$string['aihelper_response_label'] = 'AI Response';
+$string['aihelper_generating'] = 'Generating...';
+$string['aihelper_generate_btn'] = 'Generate';
+$string['aihelper_apply_btn'] = 'Apply';

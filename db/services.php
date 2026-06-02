@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,17 +12,26 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
-
-defined('MOODLE_INTERNAL') || die();
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Services definition.
  *
  * @package    filter_genericotwo
+ * @copyright  2024
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version   = 2026022502;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2024100700;        // Requires this Moodle version.
-$plugin->component = 'filter_genericotwo'; // Full name of the plugin (used for diagnostics).
+defined('MOODLE_INTERNAL') || die();
+
+$functions = [
+    'filter_genericotwo_fetch_aihelp' => [
+        'classname' => 'filter_genericotwo\external\fetch_aihelp',
+        'methodname' => 'execute',
+        'classpath' => '',
+        'description' => 'Fetch AI Helper response for multiple CodeMirror instances.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+];

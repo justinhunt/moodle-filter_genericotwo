@@ -4,7 +4,7 @@ Generico Two (G2) is a Moodle filter that allows site administrators to define c
 
 ## Requirements
 
-*   Moodle 4.1 or later (compatible with standard Moodle releases).
+*   Moodle 4.5 or later (compatible with standard Moodle releases).
 *   PHP 8.0 or later.
 
 ## Usage
