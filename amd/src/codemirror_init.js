@@ -69,6 +69,20 @@ define([
                         parent: container[0]
                     });
 
+                    // Listen for programmatic changes to the textarea (e.g. from presets)
+                    textarea.on('change', function () {
+                        if (views[item.id]) {
+                            var currentViewValue = views[item.id].state.doc.toString();
+                            var newTextareaValue = textarea.val();
+                            if (currentViewValue !== newTextareaValue) {
+                                var transaction = views[item.id].state.update({
+                                    changes: { from: 0, to: views[item.id].state.doc.length, insert: newTextareaValue }
+                                });
+                                views[item.id].dispatch(transaction);
+                            }
+                        }
+                    });
+
                     if (config && config.enableaihelper && item.id === 'id_content') {
                         addAIHelperButton(container[0], views);
                     }
@@ -84,28 +98,28 @@ define([
                 button.style.top = "-35px";
                 button.style.right = "0";
                 button.style.zIndex = "10";
-                
+
                 container.appendChild(button);
-                
-                button.addEventListener("click", function(e) {
+
+                button.addEventListener("click", function (e) {
                     e.preventDefault();
                     openAIHelperModal(allViews);
                 });
             }
 
             function openAIHelperModal(allViews) {
-                Str.get_string("aihelper_modal_title", "filter_genericotwo").then(function(title) {
+                Str.get_string("aihelper_modal_title", "filter_genericotwo").then(function (title) {
                     return Modal.create({
                         title: title,
                         body: Templates.render("filter_genericotwo/aihelper_modal", {}),
                         footer: Templates.render("filter_genericotwo/aihelper_modal_footer", {}),
                         large: false
                     });
-                }).then(function(modal) {
+                }).then(function (modal) {
                     modal.show();
                     var root = modal.getRoot();
-                    
-                    root.on("click", '[data-action="generate"]', function() {
+
+                    root.on("click", '[data-action="generate"]', function () {
                         var promptInput = root.find("#filter_genericotwo_aihelper_prompt");
                         var generateBtn = root.find('[data-action="generate"]');
                         var responseContainer = root.find(".filter_genericotwo_aihelper_response_container");
@@ -113,13 +127,13 @@ define([
                         var loading = root.find(".filter_genericotwo_aihelper_loading");
                         var applyBtn = root.find('[data-action="apply"]');
                         var prompt = promptInput.val();
-                        
+
                         if (!prompt) return;
-                        
+
                         loading.removeClass("d-none");
                         responseContainer.addClass("d-none");
                         generateBtn.prop("disabled", true);
-                        
+
                         // Gather content from all editors
                         var editorContents = {};
                         for (var id in allViews) {
@@ -127,20 +141,20 @@ define([
                                 editorContents[id] = allViews[id].state.doc.toString();
                             }
                         }
-                        
+
                         Ajax.call([{
                             methodname: "filter_genericotwo_fetch_aihelp",
                             args: {
                                 prompt: prompt,
                                 currentcode: JSON.stringify(editorContents)
                             }
-                        }])[0].then(function(res) {
+                        }])[0].then(function (res) {
                             loading.addClass("d-none");
                             generateBtn.prop("disabled", false);
-                            
+
                             if (res.status) {
                                 // Assume response contains JSON encoded string of new contents
-                                responsePre.text("AI Generation Successful!\nClick Apply to update all editors.");
+                                responsePre.text(res.message);
                                 // Store the actual response string on the pre tag using data attribute
                                 responsePre.attr('data-response', res.response);
                                 responseContainer.removeClass("d-none");
@@ -150,15 +164,15 @@ define([
                                 responsePre.text("Error: " + (res.message || "Unknown error"));
                                 responseContainer.removeClass("d-none");
                             }
-                        }).catch(function(e) {
+                        }).catch(function (e) {
                             loading.addClass("d-none");
                             generateBtn.prop("disabled", false);
                             responsePre.text("Error: " + e.message);
                             responseContainer.removeClass("d-none");
                         });
                     });
-                    
-                    root.on("click", '[data-action="apply"]', function() {
+
+                    root.on("click", '[data-action="apply"]', function () {
                         var responsePre = root.find("#filter_genericotwo_aihelper_response");
                         var rawResponse = responsePre.attr('data-response');
                         if (rawResponse) {
@@ -180,7 +194,12 @@ define([
                         }
                         modal.hide();
                     });
-                }).catch(function(e) {
+
+                    root.on("click", '[data-action="cancel"]', function (e) {
+                        e.preventDefault();
+                        modal.hide();
+                    });
+                }).catch(function (e) {
                     console.error(e);
                 });
             }

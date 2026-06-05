@@ -155,32 +155,8 @@ define(['jquery', 'core/log'], function ($, log) {
                         value = value.replace(/@@([^@]+)@@/g, '{{$1}}');
                     }
 
-                    // Check Ace editor
-                    if (window.ace) {
-                        // Find editor
-                        // The textarea might be hidden by Ace
-                        // But Ace syncs on change.
-                        // We need to set value on Ace if it exists for this field.
-                        // But we don't have direct ref here easily unless we look for it.
-                        // Simplest is to update textarea, then if Ace exists, update it?
-                        // Or update textarea and trigger change?
-                        $(controls[item]).val(value).trigger('change');
-
-                        // Manually check if there is an ace editor associated
-                        // Our ace_init creates div with class same as textarea
-                        // Easier: check id
-                        // But we don't know the editor instance.
-                        // Let's trigger a custom event or check if ace_init handles external updates? 
-                        // ace_init listens on editor change to update textarea.
-                        // It does NOT listen on textarea change to update editor.
-                        // So we might need to find the editor. 
-                        var editorEnv = ace.edit($(controls[item]).prev()[0]); // previous sibling is the editDiv
-                        if (editorEnv && editorEnv.setValue) {
-                            editorEnv.setValue(value, 1);
-                        }
-                    } else {
-                        $(controls[item]).val(value);
-                    }
+                    // Update textarea and trigger change to sync with CodeMirror or other editors
+                    $(controls[item]).val(value).trigger('change');
                 }
             });
 

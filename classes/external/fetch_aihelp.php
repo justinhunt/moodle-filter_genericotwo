@@ -31,7 +31,7 @@ use core_external\external_single_structure;
 
 defined('MOODLE_INTERNAL') || die();
 
-class fetch_aihelp extends \core_external\external_api {
+class fetch_aihelp extends external_api {
 
     /**
      * Parameters for the execute function.
@@ -63,6 +63,7 @@ class fetch_aihelp extends \core_external\external_api {
         require_capability('filter/genericotwo:managetemplates', $context);
 
         // Decode the incoming JSON payload.
+        /*
         $editors = json_decode($params['currentcode'], true);
         $responsedata = [];
 
@@ -72,12 +73,57 @@ class fetch_aihelp extends \core_external\external_api {
                 $responsedata[$id] = "hello world";
             }
         }
+        */
+
+        // Build the full prompt
+        $thefullprompt = self::fetch_full_prompt($prompt, $currentcode);
+
+        global $USER;
+        $action = new \core_ai\aiactions\generate_text(
+            contextid: $context->id,
+            userid: $USER->id,
+            prompttext: $thefullprompt
+        );
+        $manager = \core\di::get(\core_ai\manager::class);
+        $llmresponse = $manager->process_action($action);
+        $responsedata = $llmresponse->get_response_data();
+
+        if (
+            is_null($responsedata) ||
+            !is_array($responsedata) ||
+            !array_key_exists('generatedcontent', $responsedata) ||
+            is_null($responsedata['generatedcontent'])
+        ) {
+            return [
+                'status' => false,
+                'response' => '',
+                'message' => 'Failed to get valid response from AI provider.',
+            ];
+        }
+
+        $generatedcontent = $responsedata['generatedcontent'];
+
+        // Extract JSON in case the AI wraps it in backticks
+        $jsonstart = strpos($generatedcontent, '{');
+        $jsonend = strrpos($generatedcontent, '}');
+        if ($jsonstart !== false && $jsonend !== false) {
+            $generatedcontent = substr($generatedcontent, $jsonstart, $jsonend - $jsonstart + 1);
+        }
+
+        $airesponse = json_decode($generatedcontent);
+
+        if (empty($airesponse) || !isset($airesponse->editors)) {
+            return [
+                'status' => false,
+                'response' => '',
+                'message' => get_string('jsonparsefail', 'filter_genericotwo'),
+            ];
+        }
 
         return [
             'status' => true,
-            'response' => json_encode($responsedata),
-            'message' => 'Success',
-            'provider' => 'stub',
+            'response' => json_encode($airesponse->editors),
+            'message' => $airesponse->description ?? get_string('aigensuccess', 'filter_genericotwo'),
         ];
     }
 
@@ -94,4 +140,34 @@ class fetch_aihelp extends \core_external\external_api {
             'provider' => new external_value(PARAM_TEXT, 'The AI provider used', VALUE_OPTIONAL),
         ]);
     }
+
+    private static function fetch_full_prompt($prompt, $currentcode) {
+        // Build a prompt using the template below;
+        $promptbits = [];
+        $promptbits[] = "You are an expert front end developer for Moodle (a learning management system).";
+        $promptbits[] = "You developing a front end widget using Moodle's Generic Two widget authoring system.";
+        $promptbits[] = "The widget edit page contains 5 code editing areas.";
+        $promptbits[] = "For HTML and JS code, Generico Two uses parameter placeholders of the format \{\{{parametername}\}\}. \n For SQL dataset parameters use ? placeholders.";
+        $promptbits[] = "The five coding areas are:";
+        $promptbits[] = "'id_content'. This is the main content area, which contains html and mustache. (field label: Body)";
+        $tend = "'id_templateend'. This is an optional content area which also contains html and mustache. It is used when the user at runtime may place content between this code and the code from id_content. ";
+        $tend .= "e.g for an audio player widget, the user may place a media link between the id_content code and the id_templateend code at runtime. (field label: Template End)";
+        $promptbits[] = $tend;
+        $examplejs = "require(['jquery','core/log'],
+                function($, log) {
+                    $('#{{AUTOID}}_greetingbox').text('hello');
+                }
+            );";
+        $promptbits[] = "'id_jscontent'. This contains javascript, probably but not always, the definition of an AMD module. It will usually perform some action on the html/mustache content. (field label: JS Content). An example script is: " . PHP_EOL . $examplejs;
+        $promptbits[] = "'id_dataset'. This contains SQL that may have ?parameters that will be replaced by user input values at runtime. (field label: Dataset Body)";
+        $promptbits[] = "'id_customcss'. This is the custom css area. CSS declared is injected onto the page at runtime during page load. (field label: Custom CSS)";
+        $promptbits[] = "The current editor content is:" . PHP_EOL . $currentcode;
+        $promptbits[] = "You should follow the instructions below to add/edit editor content.";
+        $promptbits[] = "Return a similarly structured JSON object to the current editor content, but with the suggested replacement contents for each of the editors, but only edit content that needs to be changed.";
+        $promptbits[] = "Also return a text description of the changes you have made to the content.";
+        $promptbits[] = "Your response should be a JSON object with two keys: 'editors' (the editor contents as a JSON object with the same keys as the current editor content) and 'description' (a text description of the changes you have made to the content).";
+        $promptbits[] = "Your instructions for this task are:". PHP_EOL . $prompt;
+        return implode(PHP_EOL, $promptbits);
+    }
+
 }

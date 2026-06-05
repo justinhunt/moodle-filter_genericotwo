@@ -84,3 +84,5 @@ $string['aihelper_response_label'] = 'AI Response';
 $string['aihelper_generating'] = 'Generating...';
 $string['aihelper_generate_btn'] = 'Generate';
 $string['aihelper_apply_btn'] = 'Apply';
+$string['jsonparsefail'] = 'Failed to parse JSON response from AI provider.';
+$string['aigensuccess'] = "AI generation successful";
