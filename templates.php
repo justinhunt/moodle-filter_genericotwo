@@ -28,7 +28,7 @@ global $DB, $OUTPUT, $PAGE;
 
 $PAGE->set_url(new \moodle_url('/filter/genericotwo/templates.php'));
 $PAGE->set_context($context);
-$PAGE->set_pagelayout('admin');
+$PAGE->set_pagelayout('standard');
 $PAGE->set_title(get_string('templates', 'filter_genericotwo'));
 $PAGE->set_heading(get_string('templates', 'filter_genericotwo'));
 
