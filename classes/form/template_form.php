@@ -98,11 +98,6 @@ class template_form extends moodleform {
         ['class' => 'form-group row fitem']
         );
 
-        // $controlhtml = \html_writer::tag('div', $dragdropsquare . '' . $select, ['class' => 'col-md-9 checkbox']);
-        // $labelhtml = \html_writer::tag('div', $label, ['class' => 'col-md-3 col-form-label pb-0 pt-0']);
-
-        // $mform->addElement('html', \html_writer::tag('div', $labelhtml . $controlhtml, ['class' => 'form-group row fitem']));
-
         $mform->addElement('html', $bundlerow . $presetsrow);
 
         // Init JS.
