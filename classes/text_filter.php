@@ -90,6 +90,7 @@ class text_filter extends \core_filters\text_filter {
 
         // Add a unique id to the filter props.
         $filterprops['uniqid'] = uniqid('fg_');
+        $filterprops['AUTOID'] = $filterprops['uniqid'];
 
         // We use this to see if its a web service calling this.
         // in which case we return the alternate content.
@@ -316,7 +317,7 @@ class text_filter extends \core_filters\text_filter {
     }
 
     /**
-     * Callback used by `preview_filter`, mirrors `filter_genericotwo_callback` 
+     * Callback used by `preview_filter`, mirrors `filter_genericotwo_callback`
      * but ignores DB lookup and roles.
      */
     private function preview_callback(array $matches, \stdClass $template) {

@@ -1,0 +1,1 @@
+{"version":"1.0.0","templatekey":"helloworld","name":"Hello World","instructions":"","content":"my message: <h3> {{message}} </h3>","templateend":"","variabledefaults":"","jscontent":"","importcss":"","customcss":"","dataset":"","datasetvars":"","allowedcontexts":"","allowedcontextids":""}
