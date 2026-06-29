@@ -2,3 +2,16 @@
     background-color: #ffffff !important;
     border-style: solid !important;
 }
+
+/* Standardise borders to match .form-control */
+#page-filter-genericotwo-templates .tox-tinymce,
+#page-filter-genericotwo-templates .CodeMirror {
+    border: var(--bs-border-width) solid var(--bs-gray-500) !important;
+    border-radius: var(--bs-border-radius);
+}
+
+#page-filter-genericotwo-templates .tox-tinymce:focus-within,
+#page-filter-genericotwo-templates .CodeMirror-focused {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}

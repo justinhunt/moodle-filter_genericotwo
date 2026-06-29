@@ -24,23 +24,28 @@ use filter_genericotwo\constants;
 
 /**
  * Form for adding and editing templates.
+ * @package filter_genericotwo
  */
 class template_form extends moodleform {
     /**
      * Define form elements.
      */
     public function definition() {
+        global $PAGE, $OUTPUT;
+
         $mform = $this->_form;
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
-        // Presets Control
+        $mform->addElement('header', 'general', get_string('general', 'form'));
+
+        // Presets control.
         $presets = \filter_genericotwo\presets::fetch_presets();
         $presetopts = ['' => get_string('choosedots')];
         $presetdata = [];
         // Re-key for simple array access in JS if needed, or just keep as list
         // We will store all data in a hidden field
-        // Just keys for dropdown
+        // Just keys for dropdown.
         $pcount = 0;
         foreach ($presets as $preset) {
             $pname = isset($preset['name']) ? $preset['name'] : (isset($preset['key']) ? $preset['key'] : 'preset'.$pcount);
@@ -52,31 +57,50 @@ class template_form extends moodleform {
         $jsonpresets = json_encode($presetdata);
 
         $html = \html_writer::tag('div', '', ['id' => 'filter_genericotwo_presets_container', 'class' => 'form-group row fitem']);
-        // Hidden data field
+        // Hidden data field.
         $mform->addElement('html', \html_writer::tag('input', '',
             ['id' => 'id_filter_genericotwo_presetdata', 'type' => 'hidden', 'value' => $jsonpresets]));
 
-        // Drag Drop Square
-        // We put it in a custom HTML element
-        $dragdropsquare = \html_writer::tag('div', get_string('bundle', 'filter_genericotwo'),
-                ['id' => 'id_filter_genericotwo_dragdropsquare',
-                        'class' => 'filter_genericotwo_dragdropsquare',
-                        'style' => 'background: #cfc; border: 1px dashed #090; padding: 10px; text-align: center; cursor: pointer; float: right; width: 100px; display:inline-block; margin-left:10px;']);
+        // Bundle box.
+        // We put drag drop square in a custom HTML element.
+        $dragdropsquare = \html_writer::tag('div', get_string('bundle', 'filter_genericotwo'), [
+        'id' => 'id_filter_genericotwo_dragdropsquare',
+        'class' => 'filter_genericotwo_dragdropsquare mb-3',
+        'style' => 'background: #d5ecd4; border: 1px dashed #357a32; padding: 10px; text-align: center; cursor: pointer; width: 100px; margin-left:10px;',
+        ]);
 
-        // Select Box
+        // Preset dropdown.
         // 4th arg is 'nothing' option (null to use default or generated from opts), 5th is attributes.
         // We manually added 'choosedots' to options, so we can pass null for 'nothing'.
         $select = \html_writer::select($presetopts, 'filter_genericotwo_presets', '', null, ['id' => 'id_filter_genericotwo_presets', 'class' => 'custom-select']);
 
-        $label = \html_writer::tag('label', get_string('presets', 'filter_genericotwo') . ' ', ['for' => 'id_filter_genericotwo_presets']);
+        $label = \html_writer::tag('label', get_string('presets', 'filter_genericotwo'), [
+            'for' => 'id_filter_genericotwo_presets',
+            'class' => 'd-inline word-break',
+            ]
+        );
 
-        $controlhtml = \html_writer::tag('div', $dragdropsquare . $label . $select, ['class' => 'col-md-9 checkbox']);
-        $labelhtml = \html_writer::tag('div', '', ['class' => 'col-md-3 col-form-label pb-0 pt-0']); // Empty label col
+        // Row 1: empty label + bundle dragdrop.
+        $bundlerow = \html_writer::tag('div',
+            \html_writer::tag('div', '', ['class' => 'col-md-3']) .
+            \html_writer::tag('div', $dragdropsquare, ['class' => 'col-md-9 d-flex justify-content-end']),
+            ['class' => 'form-group row fitem']
+        );
 
-        $mform->addElement('html', \html_writer::tag('div', $labelhtml . $controlhtml, ['class' => 'form-group row fitem']));
+        // Row 2: presets label + select.
+        $presetsrow = \html_writer::tag('div',
+        \html_writer::tag('div', $label .
+        \html_writer::tag('div', $OUTPUT->help_icon('presets', 'filter_genericotwo'),
+            ['class' => 'form-label-addon d-flex align-items-center align-self-start']),
+        ['class' => 'col-md-3 col-form-label d-flex pb-0 pe-md-0']
+        ) .
+        \html_writer::tag('div', $select, ['class' => 'col-md-9']),
+        ['class' => 'form-group row fitem']
+        );
 
-        // Init JS
-        global $PAGE;
+        $mform->addElement('html', $bundlerow . $presetsrow);
+
+        // Init JS.
         $PAGE->requires->js_call_amd('filter_genericotwo/presets', 'init');
 
         $mform->addElement('text', 'version', get_string('template_version', constants::M_COMPONENT), ['size' => 64]);
@@ -91,36 +115,60 @@ class template_form extends moodleform {
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
 
-        $mform->addElement('editor', 'instructions', get_string('template_instructions', constants::M_COMPONENT));
+        $mform->addElement('editor', 'instructions', get_string('template_instructions', constants::M_COMPONENT), ['rows' => 10]);
         $mform->setType('instructions', PARAM_RAW);
 
-        $mform->addElement('textarea', 'content', get_string('template_content', constants::M_COMPONENT), ['rows' => 10]);
+        $mform->addElement('textarea', 'content', get_string('template_content', constants::M_COMPONENT), ['rows' => 4]);
         $mform->setType('content', PARAM_RAW);
         $mform->addRule('content', null, 'required', null, 'client');
 
         $mform->addElement('textarea', 'templateend', get_string('template_templateend', constants::M_COMPONENT), ['rows' => 4]);
         $mform->setType('templateend', PARAM_RAW);
+        $mform->addHelpButton('templateend', 'template_templateend', 'filter_genericotwo');
 
         $mform->addElement('textarea', 'variabledefaults', get_string('template_variabledefaults', constants::M_COMPONENT), ['rows' => 4]);
         $mform->setType('variabledefaults', PARAM_RAW);
+        $mform->addHelpButton('variabledefaults', 'template_variabledefaults', 'filter_genericotwo');
 
-        $mform->addElement('textarea', 'jscontent', get_string('template_jscontent', constants::M_COMPONENT), ['rows' => 10]);
+        $mform->addElement('textarea', 'jscontent', get_string('template_jscontent', constants::M_COMPONENT), ['rows' => 4]);
         $mform->setType('jscontent', PARAM_RAW);
         $defaultjscontent = str_replace("@@REPLACEME@@", "", constants::M_JS_DEFAULT);
         $mform->setDefault('jscontent', $defaultjscontent);
+        $mform->addHelpButton('jscontent', 'template_jscontent', 'filter_genericotwo');
 
-        // Preview Settings
+        // CSS styles.
+        $mform->addElement('header', 'hdr_css', get_string('template_cssstyles', constants::M_COMPONENT));
+        // $mform->setExpanded('hdr_css');
+        $mform->addElement('text', 'importcss', get_string('template_importcss', constants::M_COMPONENT), ['size' => 64]);
+        $mform->setType('importcss', PARAM_TEXT);
+
+        $mform->addElement('textarea', 'customcss', get_string('template_customcss', constants::M_COMPONENT), ['rows' => 4]);
+        $mform->setType('customcss', PARAM_TEXT);
+
+        // Dataset.
+        $mform->addElement('header', 'hdr_dataset', get_string('template_datasetsettings', constants::M_COMPONENT));
+        // $mform->setExpanded('hdr_dataset');
+        $mform->addElement('textarea', 'dataset', get_string('template_dataset', constants::M_COMPONENT), ['rows' => 4]);
+        $mform->setType('dataset', PARAM_TEXT);
+        $mform->addHelpButton('dataset', 'template_dataset', 'filter_genericotwo');
+
+        $mform->addElement('text', 'datasetvars', get_string('template_datasetvars', constants::M_COMPONENT), ['size' => 64]);
+        $mform->setType('datasetvars', PARAM_RAW);
+
+        // Preview settings.
         $mform->addElement('header', 'hdr_preview', get_string('preview', constants::M_COMPONENT));
 
         $mform->addElement('textarea', 'test1', get_string('template_test1', constants::M_COMPONENT),
             ['rows' => 4, 'id' => 'id_filter_genericotwo_test1', 'placeholder' => '{G2:type=mytemplatename,var1=val1,var2=val2}', 'class' => 'filter_genericotwo_teststring']);
         $mform->setType('test1', PARAM_RAW);
+        $mform->addHelpButton('test1', 'template_test1', 'filter_genericotwo');
 
         $mform->addElement('textarea', 'test2', get_string('template_test2', constants::M_COMPONENT),
             ['rows' => 4, 'id' => 'id_filter_genericotwo_test2', 'placeholder' => '{G2:type=mytemplatename,var1=val1,var2=val2}', 'class' => 'filter_genericotwo_teststring']);
         $mform->setType('test2', PARAM_RAW);
+        $mform->addHelpButton('test2', 'template_test2', 'filter_genericotwo');
 
-        // Preview rendering area
+        // Preview rendering area.
         $teststringselect = \html_writer::select(
             [
                 'test1' => get_string('template_test1', constants::M_COMPONENT),
@@ -139,7 +187,7 @@ class template_form extends moodleform {
 
         $previewarea = \html_writer::tag('div', '', [
             'id' => 'filter_genericotwo_preview_area',
-            'class' => 'border p-3 bg-white min-h-200',
+            'class' => 'form-control p-3 bg-white min-h-200',
             'style' => 'min-height: 200px;',
         ]);
 
@@ -150,29 +198,12 @@ class template_form extends moodleform {
 
         $PAGE->requires->js_call_amd('filter_genericotwo/preview', 'init');
 
-        // CSS Styles.
-        $mform->addElement('header', 'hdr_css', get_string('template_cssstyles', constants::M_COMPONENT));
-        // $mform->setExpanded('hdr_css');
-        $mform->addElement('text', 'importcss', get_string('template_importcss', constants::M_COMPONENT), ['size' => 64]);
-        $mform->setType('importcss', PARAM_TEXT);
-
-        $mform->addElement('textarea', 'customcss', get_string('template_customcss', constants::M_COMPONENT), ['rows' => 10]);
-        $mform->setType('customcss', PARAM_TEXT);
-
-        // Dataset.
-        $mform->addElement('header', 'hdr_dataset', get_string('template_datasetsettings', constants::M_COMPONENT));
-        // $mform->setExpanded('hdr_dataset');
-        $mform->addElement('textarea', 'dataset', get_string('template_dataset', constants::M_COMPONENT), ['rows' => 10]);
-        $mform->setType('dataset', PARAM_TEXT);
-
-        $mform->addElement('text', 'datasetvars', get_string('template_datasetvars', constants::M_COMPONENT), ['size' => 64]);
-        $mform->setType('datasetvars', PARAM_RAW);
-
         // Security.
         $mform->addElement('header', 'hdr_security', get_string('template_security', constants::M_COMPONENT));
         // $mform->setExpanded('hdr_security');
         $mform->addElement('text', 'allowedcontexts', get_string('template_allowedcontexts', constants::M_COMPONENT), ['size' => 64]);
         $mform->setType('allowedcontexts', PARAM_TEXT);
+        $mform->addHelpButton('allowedcontexts', 'template_allowedcontexts', 'filter_genericotwo');
 
         $mform->addElement('text', 'allowedcontextids', get_string('template_allowedcontextids', constants::M_COMPONENT), ['size' => 64]);
         $mform->setType('allowedcontextids', PARAM_TEXT);
