@@ -329,6 +329,7 @@ class text_filter extends \core_filters\text_filter {
             return "";
         }
         $filterprops['uniqid'] = uniqid('fg_preview_');
+        $filterprops['AUTOID'] = $filterprops['uniqid'];
 
         if (isset($filterprops['type']) && !empty($filterprops['type'])) {
             $type = $filterprops['type'];
