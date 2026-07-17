@@ -47,10 +47,17 @@ class text_filter extends \core_filters\text_filter {
             return $text;
         }
 
-        $search = '/{G2:.*?}/is';
+        // [^}]* rather than .*? so the match can never expand across a closing brace
+        // (e.g. two tags in one paragraph merging into a single match).
+        $tagpattern = '\{G2:[^}]*\}';
         if ($handlelegacy) {
-            $search = '/\{(?:G2|GENERICO):.*?\}/is';
+            $tagpattern = '\{(?:G2|GENERICO):[^}]*\}';
         }
+        // If the tag is alone inside a <p> (as the editor typically saves it), consume the
+        // wrapping <p></p> too. Otherwise block-level template output gets injected inside
+        // the <p>, and the browser repairs the DOM leaving stray empty <p></p> elements.
+        // The branch reset group (?|...) means the bare tag is always in $matches[1].
+        $search = '/(?|<p[^>]*>\s*(' . $tagpattern . ')\s*<\/p>|(' . $tagpattern . '))/is';
         if (!is_string($text)) {
             // Non string data can not be filtered anyway.
             return $text;
@@ -80,8 +87,9 @@ class text_filter extends \core_filters\text_filter {
         $conf = get_object_vars(get_config('filter_genericotwo'));
         $context = false; // We get this if/when we need it.
 
-        // Get our filter props.
-        $filterprops = utils::fetch_filter_properties($matches[0]);
+        // Get our filter props. $matches[1] is the bare {G2:...} tag ($matches[0] may
+        // include a consumed <p> wrapper).
+        $filterprops = utils::fetch_filter_properties($matches[1]);
 
         // If we have no props, quit.
         if (empty($filterprops)) {
