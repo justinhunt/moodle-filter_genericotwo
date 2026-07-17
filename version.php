@@ -23,6 +23,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version   = 2026022502;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2026071700;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2024100700;        // Requires this Moodle version.
 $plugin->component = 'filter_genericotwo'; // Full name of the plugin (used for diagnostics).

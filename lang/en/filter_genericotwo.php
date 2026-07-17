@@ -91,8 +91,13 @@ $string['templateadded'] = 'Template added successfully';
 $string['templatedeleted'] = 'Template deleted successfully';
 $string['templates'] = 'Templates';
 $string['templatesinstructions'] = 'Add or edit a template here to make it available for use by the filter. A template is a mustache template with some fields, and javascript and CSS.';
+$string['templatesupdated'] = 'Updated {$a} template(s) from presets';
 $string['templateupdated'] = 'Template updated successfully';
 $string['test1'] = 'Test 1';
 $string['test2'] = 'Test 2';
+$string['updateall'] = 'Update all';
+$string['updateallconfirm'] = 'Are you sure you want to update all updateable templates from their newer presets? Any local changes to those templates will be overwritten. Allowed contexts and test strings will be kept.';
+$string['updateconfirm'] = 'Are you sure you want to update this template from its newer preset (version {$a})? Any local changes to this template will be overwritten. Allowed contexts and test strings will be kept.';
+$string['updatetoversion'] = 'Update to {$a}';
 
 

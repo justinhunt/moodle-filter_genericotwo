@@ -20,6 +20,7 @@ require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->libdir . '/tablelib.php');
 
 use filter_genericotwo\form\template_form;
+use filter_genericotwo\presets;
 
 $context = context_system::instance();
 require_login();
@@ -47,6 +48,49 @@ if ($action === 'delete' && $id) {
     } else {
         echo $OUTPUT->header();
         echo $OUTPUT->confirm(get_string('deleteconfirm', 'filter_genericotwo'), $deleteurl, $cancelurl);
+        echo $OUTPUT->footer();
+        exit;
+    }
+}
+
+if ($action === 'update' && $id) {
+    require_sesskey();
+    $confirm = optional_param('confirm', 0, PARAM_BOOL);
+    $template = $DB->get_record('filter_genericotwo_templates', ['id' => $id], '*', MUST_EXIST);
+    $listurl = new \moodle_url('/filter/genericotwo/templates.php');
+    if ($confirm) {
+        $updated = presets::update_template_from_preset($template);
+        redirect($listurl, get_string('templatesupdated', 'filter_genericotwo', $updated ? 1 : 0));
+    } else {
+        $updateversion = presets::template_has_update($template);
+        if (!$updateversion) {
+            redirect($listurl);
+        }
+        $updateurl = new \moodle_url(
+            '/filter/genericotwo/templates.php',
+            ['action' => 'update', 'id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]
+        );
+        echo $OUTPUT->header();
+        echo $OUTPUT->confirm(get_string('updateconfirm', 'filter_genericotwo', $updateversion), $updateurl, $listurl);
+        echo $OUTPUT->footer();
+        exit;
+    }
+}
+
+if ($action === 'updateall') {
+    require_sesskey();
+    $confirm = optional_param('confirm', 0, PARAM_BOOL);
+    $listurl = new \moodle_url('/filter/genericotwo/templates.php');
+    if ($confirm) {
+        $updatecount = presets::update_all_templates();
+        redirect($listurl, get_string('templatesupdated', 'filter_genericotwo', $updatecount));
+    } else {
+        $updateallurl = new \moodle_url(
+            '/filter/genericotwo/templates.php',
+            ['action' => 'updateall', 'confirm' => 1, 'sesskey' => sesskey()]
+        );
+        echo $OUTPUT->header();
+        echo $OUTPUT->confirm(get_string('updateallconfirm', 'filter_genericotwo'), $updateallurl, $listurl);
         echo $OUTPUT->footer();
         exit;
     }
@@ -115,13 +159,42 @@ if ($action === 'add' || $action === 'edit') {
 }
 
 $templates = $DB->get_records('filter_genericotwo_templates', null, 'name ASC');
+$presetmap = presets::fetch_presets_by_key();
+$haveupdates = false;
 $table = new html_table();
-$table->head = [get_string('template_name', 'filter_genericotwo'), get_string('actions')];
+$table->head = [
+    get_string('template_name', 'filter_genericotwo'),
+    get_string('template_templatekey', 'filter_genericotwo'),
+    get_string('template_version', 'filter_genericotwo'),
+    get_string('actions'),
+];
 foreach ($templates as $tmpl) {
     $editurl = new moodle_url('/filter/genericotwo/templates.php', ['action' => 'edit', 'id' => $tmpl->id]);
     $deleteurl = new moodle_url('/filter/genericotwo/templates.php', ['action' => 'delete', 'id' => $tmpl->id, 'sesskey' => sesskey()]);
     $actions = html_writer::link($editurl, get_string('edit')) . ' | ' . html_writer::link($deleteurl, get_string('delete'));
-    $table->data[] = [format_string($tmpl->name), $actions];
+
+    $versioncell = s($tmpl->version);
+    $updateversion = presets::template_has_update($tmpl, $presetmap);
+    if ($updateversion) {
+        $haveupdates = true;
+        $updateurl = new moodle_url(
+            '/filter/genericotwo/templates.php',
+            ['action' => 'update', 'id' => $tmpl->id, 'sesskey' => sesskey()]
+        );
+        $updatebutton = new single_button(
+            $updateurl,
+            get_string('updatetoversion', 'filter_genericotwo', $updateversion)
+        );
+        $versioncell .= ' ' . $OUTPUT->render($updatebutton);
+    }
+
+    $table->data[] = [format_string($tmpl->name), s($tmpl->templatekey), $versioncell, $actions];
+}
+if ($haveupdates) {
+    $updateallurl = new moodle_url('/filter/genericotwo/templates.php', ['action' => 'updateall', 'sesskey' => sesskey()]);
+    $updateallbutton = new single_button($updateallurl, get_string('updateall', 'filter_genericotwo'));
+    echo $OUTPUT->render($updateallbutton);
+    echo html_writer::empty_tag('br');
 }
 echo html_writer::table($table);
 
