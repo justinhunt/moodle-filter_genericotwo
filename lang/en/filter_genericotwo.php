@@ -37,6 +37,7 @@ $string['enableace_desc'] = 'Enable syntax highlighting options using Ace Editor
 $string['enableaihelper'] = 'Enable AI helper';
 $string['enableaihelper_desc'] = 'Enable the AI wizard button for template editing.';
 $string['filtername'] = 'Generico Two filter';
+$string['finished'] = 'Finished';
 $string['genericotwo:managetemplates'] = 'Manage templates';
 $string['handlelegacytags'] = 'Handle legacy tags';
 $string['handlelegacytags_desc'] = 'If enabled, this filter will also process {GENERICO:type="xx"} tags using Generico Two templates.';
@@ -48,6 +49,10 @@ $string['migrateselected'] = 'Migrate selected templates';
 $string['migrationsuccess'] = 'Successfully migrated {$a} templates.';
 $string['nomigrationcandidates'] = 'No templates available for migration (all Generico templates already exist in Generico Two).';
 $string['nopreviewstring'] = 'The test string is empty. It should be something like {G2:type=mytemplate,var=abc}';
+$string['paused'] = 'Paused';
+$string['play'] = 'Play';
+$string['playbackspeed'] = 'Playback speed';
+$string['playing'] = 'Playing';
 $string['pluginname'] = 'Generico Two filter';
 $string['presetavailable'] = 'Generico Two preset available';
 $string['presets'] = 'Presets';
@@ -55,8 +60,16 @@ $string['presets_help'] = 'Choose a preset to populate this template with precon
 $string['preview'] = 'Preview';
 $string['preview_desc'] = 'Preview the template output using the Test 1 or Test 2 strings.';
 $string['privacy:metadata'] = 'The Generico Two filter does not store any personal data.';
+$string['ready'] = 'Ready';
+$string['remainingplays'] = 'Remaining plays';
 $string['required'] = 'This field is required.';
+$string['restart'] = 'Restart';
 $string['selectall'] = 'Select all';
+$string['skipback'] = 'Skip back';
+$string['skipforward'] = 'Skip forward';
+$string['skiptoend'] = 'Skip to end';
+$string['speeddown'] = 'Speed down';
+$string['speedup'] = 'Speed up';
 $string['template'] = 'Template';
 $string['template_allowedcontextids'] = 'Allowed context IDs';
 $string['template_allowedcontextids_help'] = 'Comma-separated context IDs where this template may render. Leave blank for all contexts. E.g. 42,56,103';
@@ -99,5 +112,6 @@ $string['updateall'] = 'Update all';
 $string['updateallconfirm'] = 'Are you sure you want to update all updateable templates from their newer presets? Any local changes to those templates will be overwritten. Allowed contexts and test strings will be kept.';
 $string['updateconfirm'] = 'Are you sure you want to update this template from its newer preset (version {$a})? Any local changes to this template will be overwritten. Allowed contexts and test strings will be kept.';
 $string['updatetoversion'] = 'Update to {$a}';
-
+$string['volumedown'] = 'Volume down';
+$string['volumeup'] = 'Volume up';
 
