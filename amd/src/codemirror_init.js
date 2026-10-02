@@ -92,6 +92,8 @@ define([
 
 					container.css({
 						width: "100%",
+						// Bootstrap 4 gives .form-control a fixed height; let the editor wrapper grow.
+						height: "auto",
 					});
 
 					textarea.hide();
@@ -113,6 +115,7 @@ define([
 					var extensions = [
 						basicSetup,
 						theme,
+						EditorView.lineWrapping,
 						EditorView.updateListener.of(function (update) {
 							if (update.docChanged) {
 								textarea.val(update.state.doc.toString());
