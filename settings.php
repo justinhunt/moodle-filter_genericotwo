@@ -33,8 +33,14 @@ if ($hassiteconfig) {
     // Add folder in property tree for settings pages.
     $g2categoryname = 'filter_genericotwo';
     $ADMIN->add('filtersettings', new admin_category($g2categoryname, get_string('pluginname', 'filter_genericotwo')));
-    $settingspage = new admin_settingpage('filtersettinggenericotwo', get_string('generalsettings', 'admin'));
+    $settingspage = new \filter_genericotwo\admin\settings_page(
+        'filtersettinggenericotwo', get_string('generalsettings', 'admin')
+    );
     $ADMIN->add($g2categoryname, $settingspage);
+    // Set breadcrumbs before the header, only on this plugin's own settings page.
+    if ($PAGE->pagetype === 'admin-setting-filtersettinggenericotwo') {
+        \filter_genericotwo\output\navigation::breadcrumbs(get_string('settings'));
+    }
     $settingspage->add(new admin_setting_configcheckbox(
         'filter_genericotwo/enableaihelper',
         get_string('enableaihelper', 'filter_genericotwo'),

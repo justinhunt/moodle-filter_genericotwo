@@ -28,6 +28,7 @@ require_once($CFG->libdir . '/formslib.php');
 
 use filter_genericotwo\form\template_form;
 use filter_genericotwo\presets;
+use filter_genericotwo\output\navigation;
 
 $context = context_system::instance();
 require_login();
@@ -44,6 +45,19 @@ $PAGE->set_heading(get_string('templates', 'filter_genericotwo'));
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $id     = optional_param('id', 0, PARAM_INT);
 
+$template = null;
+if ($action === 'edit') {
+    $template = $DB->get_record('filter_genericotwo_templates', ['id' => $id], '*', IGNORE_MISSING);
+    if (!$template) {
+        redirect(new moodle_url('/filter/genericotwo/templates.php'));
+    }
+    navigation::breadcrumbs(format_string($template->name, true, ['context' => $context]));
+} else if ($action === 'add') {
+    navigation::breadcrumbs(get_string('addtemplate', 'filter_genericotwo'));
+} else {
+    navigation::breadcrumbs();
+}
+
 if ($action === 'delete' && $id) {
     require_sesskey();
     $confirm = optional_param('confirm', 0, PARAM_BOOL);
@@ -54,6 +68,7 @@ if ($action === 'delete' && $id) {
         redirect(new \moodle_url('/filter/genericotwo/templates.php'), get_string('templatedeleted', 'filter_genericotwo'));
     } else {
         echo $OUTPUT->header();
+        echo navigation::tabs('templates');
         echo $OUTPUT->confirm(get_string('deleteconfirm', 'filter_genericotwo'), $deleteurl, $cancelurl);
         echo $OUTPUT->footer();
         exit;
@@ -78,6 +93,7 @@ if ($action === 'update' && $id) {
             ['action' => 'update', 'id' => $id, 'confirm' => 1, 'sesskey' => sesskey()]
         );
         echo $OUTPUT->header();
+        echo navigation::tabs('templates');
         echo $OUTPUT->confirm(get_string('updateconfirm', 'filter_genericotwo', $updateversion), $updateurl, $listurl);
         echo $OUTPUT->footer();
         exit;
@@ -97,6 +113,7 @@ if ($action === 'updateall') {
             ['action' => 'updateall', 'confirm' => 1, 'sesskey' => sesskey()]
         );
         echo $OUTPUT->header();
+        echo navigation::tabs('templates');
         echo $OUTPUT->confirm(get_string('updateallconfirm', 'filter_genericotwo'), $updateallurl, $listurl);
         echo $OUTPUT->footer();
         exit;
@@ -146,20 +163,17 @@ if ($isform) {
 }
 
 echo $OUTPUT->header();
+echo navigation::tabs('templates');
 
 echo html_writer::tag('p', get_string('templatesinstructions', 'filter_genericotwo'));
 
 if ($isform) {
     if ($action === 'edit' && empty($data)) {
-        if ($tmpl = $DB->get_record('filter_genericotwo_templates', ['id' => $id], '*', IGNORE_MISSING)) {
-            $tmpl->instructions = [
-                'text' => $tmpl->instructions,
-                'format' => $tmpl->instructionsformat ?? FORMAT_MOODLE,
-            ];
-            $form->set_data($tmpl);
-        } else {
-            redirect(new moodle_url('/filter/genericotwo/templates.php'));
-        }
+        $template->instructions = [
+            'text' => $template->instructions,
+            'format' => $template->instructionsformat ?? FORMAT_MOODLE,
+        ];
+        $form->set_data($template);
     }
     echo $OUTPUT->render_from_template('filter_genericotwo/pagewidth_toggle', ['fullwidth' => $fullwidth]);
     $form->display();
