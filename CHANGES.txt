@@ -1,3 +1,7 @@
+v1.0.3 (Build 2026102001)
+- Added CAMP registry listing and release workflow
+- Declared supported Moodle range (4.5 to 5.2)
+
 v1.0.2 (Build 2026102000)
 - Added better response for generico filter strings with "type" set to a non-existent template
 - Tightened how params from filter string are merged into mustache template javascript

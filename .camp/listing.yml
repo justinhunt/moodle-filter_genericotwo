@@ -1,0 +1,33 @@
+# camp listing manifest — the descriptive content for this plugin's page.
+# Edit freely and commit; camp ingests and hash-pins it at each tagged release.
+# Schema: https://camp-registry.org/schema/listing.schema.json
+name: Generico Two
+summary: Define reusable HTML, Mustache, JavaScript and CSS templates and drop them into any Moodle content with a simple tag.
+description: |
+  Generico Two (G2) is a Moodle text filter. Site administrators register templates made of
+  HTML, Mustache, JavaScript, CSS and an optional SQL dataset, and authors then embed them
+  anywhere Moodle filters text with a tag such as `{G2:type=youtube,videoid=AbCdEfGh}`.
+
+  **Features:** templates stored in the database and rendered with Mustache, an admin editor
+  with live preview, a library of ready-made presets, an optional AI helper for writing
+  templates, start/end tag pairs for wrappers such as tabs and accordions, and per-template
+  context restrictions.
+
+  **Variables:** tag parameters, URL parameters, course, user and profile fields, template
+  defaults and SQL dataset results can all be used inside a template.
+
+  **Migration:** a one-click tool imports templates from the original Generico filter, and
+  legacy `{GENERICO:...}` tags can optionally be handled.
+labels:
+  # Disclosure, not judgement (RFC 4.7) — declare every one that applies:
+  #   fully-free | freemium | paid-service | external-account
+  #   donation-supported | commercial-support-available
+  - fully-free
+category: filter
+# Raster only (png/jpg/webp — no SVG), max 10; the first is the lead image.
+# screenshots:
+#   - path: .camp/screenshots/overview.png
+#     caption: Main view
+links:
+  changelog: https://github.com/justinhunt/moodle-filter_genericotwo/blob/master/CHANGES.txt
+  issues: https://github.com/justinhunt/moodle-filter_genericotwo/issues
