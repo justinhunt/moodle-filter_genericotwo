@@ -76,6 +76,22 @@ class text_filter extends \core_filters\text_filter {
 
 
     /**
+     * Render an unresolvable tag as visible, inert text.
+     *
+     * This filter runs after Moodle has sanitised the text, so a tag that resolved to an empty
+     * string could let a crafted author split markup (e.g. "<scri{G2:type=x}pt>") that only
+     * becomes valid HTML once the tag vanishes. A non-empty, escaped replacement prevents that
+     * and shows the author which tag failed. The opening brace is encoded so the output can
+     * never be matched as a tag by a later filter pass.
+     *
+     * @param string $tag The bare {G2:...} tag.
+     * @return string
+     */
+    private function inert_tag(string $tag): string {
+        return str_replace('{', '&#123;', s($tag));
+    }
+
+    /**
      * Generico callback.
      *
      * @param array $matches Regex matches; $matches[1] is the bare {G2:...} tag.
@@ -93,7 +109,7 @@ class text_filter extends \core_filters\text_filter {
 
         // If we have no props, quit.
         if (empty($filterprops)) {
-            return "";
+            return $this->inert_tag($matches[1]);
         }
 
         // Add a unique id to the filter props.
@@ -169,10 +185,10 @@ class text_filter extends \core_filters\text_filter {
                     $datasetvars = $template->datasetvars;
                 }
             } else {
-                return '';
+                return $this->inert_tag($matches[1]);
             }
         } else {
-            return '';
+            return $this->inert_tag($matches[1]);
         }
 
         // CSS handling.

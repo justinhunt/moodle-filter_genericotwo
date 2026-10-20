@@ -60,7 +60,7 @@ class renderer extends \plugin_renderer_base implements renderable {
         $finishedjs = '';
         if (!empty($jsstring)) {
             $jstpl = $mustache->loadTemplate($jsstring);
-            $finishedjs = $jstpl->render($templatedata);
+            $finishedjs = $jstpl->render($this->prepare_js_data($templatedata));
         }
 
         $mustache->setLoader($oldloader);
@@ -87,5 +87,45 @@ class renderer extends \plugin_renderer_base implements renderable {
         $this->page->requires->js_call_amd('filter_genericotwo/loader', 'init', [$cssurls]);
 
         return $finishedcontents;
+    }
+
+    /**
+     * Make the template data safe to interpolate into JavaScript string literals.
+     *
+     * Mustache's {{var}} escaping is HTML escaping only: it leaves single quotes and backslashes
+     * alone, so a tag parameter or URL parameter could close a quoted string in the template's JS
+     * (e.g. volume=');alert(1);//) or use a trailing backslash to swallow the closing quote. Here the
+     * characters that can end or alter a JS string literal are backslash-escaped. Mustache's own
+     * HTML escaping still runs afterwards, so the value reads as it always did within the string.
+     *
+     * @param mixed $data a context value: scalar, array or object
+     * @return mixed the same structure with all strings made safe for JS string literals
+     */
+    protected function prepare_js_data($data) {
+        if (is_string($data)) {
+            return preg_replace_callback('/[\\\\\'\x60$\x00-\x1f\x{2028}\x{2029}]/u', function ($m) {
+                $char = $m[0];
+                switch ($char) {
+                    case "\n":
+                        return '\\n';
+                    case "\r":
+                        return '\\r';
+                    case '\\':
+                    case "'":
+                    case "\x60":
+                    case '$':
+                        return '\\' . $char;
+                    default:
+                        return sprintf('\\u%04x', \core_text::utf8ord($char));
+                }
+            }, $data) ?? '';
+        }
+        if (is_object($data)) {
+            $data = get_object_vars($data);
+        }
+        if (is_array($data)) {
+            return array_map([$this, 'prepare_js_data'], $data);
+        }
+        return $data;
     }
 }
