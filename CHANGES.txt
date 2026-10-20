@@ -1,3 +1,7 @@
+v1.0.2 (Build 2026102000)
+- Added better response for generico filter strings with "type" set to a non-existent template
+- Tightened how params from filter string are merged into mustache template javascript
+
 v1.0.1 (Build 2026090700)
 - added less idiosyncratic js loading
 - added more presets to install by default
