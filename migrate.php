@@ -27,6 +27,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/tablelib.php');
 
 use filter_genericotwo\constants;
+use filter_genericotwo\output\navigation;
 
 $context = context_system::instance();
 require_login();
@@ -37,6 +38,7 @@ $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('migratelegacy', 'filter_genericotwo'));
 $PAGE->set_heading(get_string('migratelegacy', 'filter_genericotwo'));
+navigation::breadcrumbs(get_string('migration', 'filter_genericotwo'));
 
 $action = optional_param('action', '', PARAM_ALPHA);
 $ids = optional_param_array('ids', [], PARAM_INT);
@@ -174,6 +176,7 @@ if ($action === 'migrate' && $confirm && !empty($ids)) {
 }
 
 echo $OUTPUT->header();
+echo navigation::tabs('migration');
 
 // Fetch candidates.
 $candidates = [];
