@@ -55,6 +55,19 @@ body.filter-genericotwo-pagewidth .main-inner .d-flex > .form-control {
 }
 
 .filter_genericotwo_varmenu {
+    /* Bootstrap 5's item and header styles need variables normally set by
+       .dropdown-menu. Keep this custom picker independent of its JS data API. */
+    --bs-dropdown-item-padding-x: 1.5rem;
+    --bs-dropdown-item-padding-y: 0.25rem;
+    --bs-dropdown-header-padding-x: 1.5rem;
+    --bs-dropdown-header-padding-y: 0.5rem;
+    --bs-dropdown-header-color: var(--bs-secondary-color, #6c757d);
+    --bs-dropdown-link-color: var(--bs-body-color, #212529);
+    --bs-dropdown-link-hover-color: var(--bs-emphasis-color, #16181b);
+    --bs-dropdown-link-hover-bg: var(--bs-tertiary-bg, #e9ecef);
+    --bs-dropdown-link-active-color: #fff;
+    --bs-dropdown-link-active-bg: var(--bs-primary, #0f6cbf);
+    --bs-dropdown-link-disabled-color: var(--bs-tertiary-color, #6c757d);
     display: none;
     position: absolute;
     z-index: 1000;
@@ -64,8 +77,8 @@ body.filter-genericotwo-pagewidth .main-inner .d-flex > .form-control {
     max-width: 90vw;
     padding: 0.5rem 0;
     background-color: var(--bs-body-bg, #fff);
-    border: var(--bs-border-width) solid var(--bs-border-color, #dee2e6);
-    border-radius: var(--bs-border-radius);
+    border: var(--bs-border-width, 1px) solid var(--bs-border-color, #dee2e6);
+    border-radius: var(--bs-border-radius, 0.25rem);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     text-align: left;
 }
@@ -83,8 +96,9 @@ body.filter-genericotwo-pagewidth .main-inner .d-flex > .form-control {
     overflow-y: auto;
 }
 
-.filter_genericotwo_varitem {
-    white-space: normal;
+#page-filter-genericotwo-templates .filter_genericotwo_varmenu .filter_genericotwo_varitem {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
 }
 
 .filter_genericotwo_varitem_label {
@@ -95,4 +109,10 @@ body.filter-genericotwo-pagewidth .main-inner .d-flex > .form-control {
     padding: 0.5rem 0.75rem 0;
     border-top: var(--bs-border-width) solid var(--bs-border-color, #dee2e6);
     margin-top: 0.25rem;
+}
+
+/* Bootstrap 4 clips overflowing children of open form sections. Keep the collapse
+   animation unchanged, but let the variable picker reach beyond an expanded section. */
+#page-filter-genericotwo-templates .mform .fcontainer.show {
+    overflow: visible;
 }
