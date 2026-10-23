@@ -8,15 +8,13 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <https://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace filter_genericotwo\output;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Shared navigation for the plugin's administration pages.
@@ -36,12 +34,23 @@ class navigation {
         global $CFG, $OUTPUT;
 
         $tabs = [
-            new \tabobject('templates', new \moodle_url('/filter/genericotwo/templates.php'),
-                get_string('templates', 'filter_genericotwo'), '', true),
-            new \tabobject('migration', new \moodle_url('/filter/genericotwo/migrate.php'),
-                get_string('migration', 'filter_genericotwo')),
-            new \tabobject('settings', new \moodle_url('/' . $CFG->admin . '/settings.php',
-                ['section' => 'filtersettinggenericotwo']), get_string('settings')),
+            new \tabobject(
+                'templates',
+                new \moodle_url('/filter/genericotwo/templates.php'),
+                get_string('templates', 'filter_genericotwo'),
+                '',
+                true
+            ),
+            new \tabobject(
+                'migration',
+                new \moodle_url('/filter/genericotwo/migrate.php'),
+                get_string('migration', 'filter_genericotwo')
+            ),
+            new \tabobject(
+                'settings',
+                new \moodle_url('/' . $CFG->admin . '/settings.php', ['section' => 'filtersettinggenericotwo']),
+                get_string('settings')
+            ),
         ];
 
         return $OUTPUT->tabtree($tabs, $active);
@@ -64,11 +73,17 @@ class navigation {
 
         $PAGE->navbar->ignore_active();
         $PAGE->navbar->add(get_string('administrationsite'), new \moodle_url('/' . $CFG->admin . '/index.php'));
-        $PAGE->navbar->add(get_string('filters', 'admin'),
-            new \moodle_url('/' . $CFG->admin . '/category.php', ['category' => 'filtersettings']));
-        $PAGE->navbar->add(get_string('navigationtitle', 'filter_genericotwo'),
-            new \moodle_url('/filter/genericotwo/templates.php'), \navigation_node::TYPE_CUSTOM,
-            null, 'filter_genericotwo');
+        $PAGE->navbar->add(
+            get_string('filters', 'admin'),
+            new \moodle_url('/' . $CFG->admin . '/category.php', ['category' => 'filtersettings'])
+        );
+        $PAGE->navbar->add(
+            get_string('navigationtitle', 'filter_genericotwo'),
+            new \moodle_url('/filter/genericotwo/templates.php'),
+            \navigation_node::TYPE_CUSTOM,
+            null,
+            'filter_genericotwo'
+        );
         if ($label !== null) {
             $PAGE->navbar->add($label);
         }

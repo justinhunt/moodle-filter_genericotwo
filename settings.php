@@ -34,7 +34,8 @@ if ($hassiteconfig) {
     $g2categoryname = 'filter_genericotwo';
     $ADMIN->add('filtersettings', new admin_category($g2categoryname, get_string('pluginname', 'filter_genericotwo')));
     $settingspage = new \filter_genericotwo\admin\settings_page(
-        'filtersettinggenericotwo', get_string('generalsettings', 'admin')
+        'filtersettinggenericotwo',
+        get_string('generalsettings', 'admin')
     );
     $ADMIN->add($g2categoryname, $settingspage);
     // Set breadcrumbs before the header, only on this plugin's own settings page.
