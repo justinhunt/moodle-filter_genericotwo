@@ -16,20 +16,52 @@
 
 namespace filter_genericotwo\privacy;
 
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\transform;
+use core_privacy\local\request\writer;
+
 /**
- * Privacy Subsystem null provider for filter_genericotwo.
+ * Privacy Subsystem implementation for filter_genericotwo.
+ *
+ * The plugin stores one user preference. AI helper requests are handled, recorded and
+ * exported by the core_ai subsystem, so they are declared as a link to that subsystem.
  *
  * @package    filter_genericotwo
  * @copyright  2026 Justin Hunt <poodllsupport@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\user_preference_provider {
     /**
-     * Get reason why plugin stores no data.
+     * Describe the personal data this plugin stores or passes on.
      *
-     * @return string
+     * @param collection $collection The collection to add metadata to.
+     * @return collection The updated collection.
      */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
+    public static function get_metadata(collection $collection): collection {
+        $collection->add_user_preference(
+            'filter_genericotwo_templates_fullwidth',
+            'privacy:preference:templates_fullwidth'
+        );
+        $collection->link_subsystem('core_ai', 'privacy:metadata:core_ai');
+        return $collection;
+    }
+
+    /**
+     * Export the user preferences belonging to this plugin.
+     *
+     * @param int $userid The id of the user whose preferences are exported.
+     */
+    public static function export_user_preferences(int $userid) {
+        $fullwidth = get_user_preferences('filter_genericotwo_templates_fullwidth', null, $userid);
+        if ($fullwidth !== null) {
+            writer::export_user_preference(
+                'filter_genericotwo',
+                'filter_genericotwo_templates_fullwidth',
+                transform::yesno($fullwidth),
+                get_string('privacy:preference:templates_fullwidth', 'filter_genericotwo')
+            );
+        }
     }
 }
