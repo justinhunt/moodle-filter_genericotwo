@@ -1,3 +1,8 @@
+v1.0.5 (Build 2026111900)
+- Security: the template preview is now limited to site administrators
+- Template datasets now only run single SELECT queries
+- Fixed dataset query errors not being caught
+
 v1.0.4 (Build 2026102700)
 - Declared support for Moodle 5.3
 - Fixed the Welcome User preset showing the user picture as HTML code

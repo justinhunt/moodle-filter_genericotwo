@@ -30,6 +30,12 @@
  */
 function filter_genericotwo_output_fragment_preview($args) {
     global $PAGE, $CFG;
+
+    // The Fragment API (core_get_fragment) only validates the context, so the callback must
+    // do its own access check. The preview runs admin-authored SQL and JS, so it is limited
+    // to the same users who can edit templates.
+    require_capability('moodle/site:config', context_system::instance());
+
     require_once($CFG->dirroot . '/filter/genericotwo/classes/text_filter.php');
 
     $args = (object) $args;

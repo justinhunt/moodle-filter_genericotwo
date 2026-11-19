@@ -328,11 +328,16 @@ class text_filter extends \core_filters\text_filter {
      * Preview method used by the fragment API.
      * Bypasses the database call and uses the form data template.
      *
+     * The template comes from the caller, including its SQL dataset and JS, so only users
+     * who may edit templates are allowed to preview one.
+     *
      * @param \stdClass $template Form data simulated as a template record
      * @param string $text The filter string to evaluate
      * @return string Processed HTML
      */
     public function preview_filter($template, $text) {
+        require_capability('moodle/site:config', \context_system::instance());
+
         $search = '/\{?(?:G2|GENERICO):[^}]+\}?/is';
         if (!is_string($text)) {
             return $text;
@@ -608,6 +613,13 @@ class text_filter extends \core_filters\text_filter {
      */
     private function fetch_dataset($template, $datasetvars) {
         global $DB;
+
+        // A dataset is only ever meant to read data. The DML layer does not enforce that
+        // for get_records_sql(), so refuse anything that is not a SELECT.
+        if (!self::is_select_query($template->dataset)) {
+            return [];
+        }
+
         $vars = [];
         if ($datasetvars && !empty($datasetvars)) {
             $vars = explode(',', $datasetvars);
@@ -629,9 +641,34 @@ class text_filter extends \core_filters\text_filter {
             } else {
                 return [];
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return [];
         }
+    }
+
+    /**
+     * Check that a dataset query is a single, read-only SELECT statement.
+     *
+     * This is a second layer behind the template editing capability, not a full SQL parser:
+     * it refuses statements that do not start with SELECT, that chain a second statement
+     * after a semicolon, or that write rows or files with SELECT ... INTO.
+     *
+     * @param string|null $sql The dataset SQL.
+     * @return bool true if the query looks like a plain SELECT.
+     */
+    public static function is_select_query(?string $sql): bool {
+        // A single trailing semicolon is harmless and common in saved templates.
+        $sql = rtrim(trim((string)$sql), "; \t\n\r\0\x0B");
+        if ($sql === '' || !preg_match('/^\(*\s*select\b/i', $sql)) {
+            return false;
+        }
+        if (strpos($sql, ';') !== false) {
+            return false;
+        }
+        if (preg_match('/\binto\b/i', $sql)) {
+            return false;
+        }
+        return true;
     }
 
     /**
