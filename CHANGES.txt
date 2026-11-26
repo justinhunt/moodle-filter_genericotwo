@@ -1,3 +1,6 @@
+v1.0.6 (Build 2026112600)
+- Import CSS URL help now explains that viewers' browsers fetch an external stylesheet from its host
+
 v1.0.5 (Build 2026111900)
 - Security: the template preview is now limited to site administrators
 - Template datasets now only run single SELECT queries
